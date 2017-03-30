@@ -53,20 +53,7 @@ public class Main {
 
         };
 
-        //int nrObiektu = 0;
-        //loop:
-//        for(String[] obiekt : system){
-//            nrObiektu++;
-//            System.out.print("\nObiekt "+nrObiektu+": ");
-//
-//
-////            if(czyObiektSpelniaRegule(r2,obiekt)){
-////                System.out.println("");
-////                //break loop;
-//
-//            czyRegulaJestSprzeczna(r2,obiekt);
-//
-//        }
+
 
 
         if(czySprzeczna(r2,system)) System.out.println("True"); else System.out.println("False");
