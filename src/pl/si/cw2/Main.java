@@ -2,7 +2,6 @@ package pl.si.cw2;
 
 import org.paukov.combinatorics3.Generator;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -11,32 +10,11 @@ import java.util.List;
 
 public class Main {
 
+
     public static void main(String[] args) {
-//        permute(Arrays.asList(1,2,3), 0);          // permutacja (kombinacja bez powtorzen)
-
-//        ArrayList<String> lst=new ArrayList<String>();
-//        lst.add(0,"xd");
-//        lst.add(1,"df");
-
-//        for(int i=0, i<lst.size(), ){
-//            System.out.print(i);
-//        }
-
-        Regula r1 = new Regula();
-
-        r1.deskryptor.put(2,"1");
-        r1.deskryptor.put(3,"N");
-
-        r1.decyzja = "0";
-
-//        System.out.println(r1.deskryptory.keySet().toArray()[0]+" => "+r1.deskryptory.get(r1.deskryptory.keySet().toArray()[0]));
-
-        Regula r2 = new Regula();
-        r2.deskryptor.put(5,"4");    // regula zalozona, leci do sprawdzenia
-        r2.decyzja = "1";
 
 
-        String[][] system = {
+        String[][] s1 = {
                                 {"1","2","T","1","0"},
                                 {"2","3","N","1","1"},
                                 {"3","4","T","1","1"},
@@ -59,87 +37,140 @@ public class Main {
 
 
 
+        String[][] sys = s2;
+
+
+        Map<Regula,List<Integer>> obiektyReguly = new HashMap<>();
+
+        List<Regula> wszystkieReguly = new ArrayList<>();
+
+        List<Integer> obiektyWyeliminowane = new ArrayList<>();
+
+        List<Regula> listaRegul1 = new ArrayList<>();
+
+
+        for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
+
+
+            List<Integer> listaObiektow = new ArrayList<>();
+            for (int i = 0; i < sys[0].length - 1; i++) {
+                listaObiektow.add(i + 1);
+            }
+            List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad);
+
+
+            for (int obiektNr = 0; obiektNr < sys.length; obiektNr++) {
+
+                if (!obiektyWyeliminowane.contains(obiektNr)) {     // jak obiekt nie jest w wyeliminowanych
+
+                    for (int[] kombinacjeArr : kombinacjeWszystkie) {
+
+
+                        Regula nowaRegula = tworzRegule(sys[obiektNr], kombinacjeArr);
+
+                        wszystkieReguly.add(nowaRegula);     //  lista pomocnicza ze wszystkimi regulami
+
+                        if (czyNieSprzeczna(nowaRegula, sys)) {     // jesli regula jest niesprzeczna
+                            List<Integer> supportObiekty = SupportObiekty(nowaRegula, sys);
+                            obiektyWyeliminowane.addAll(supportObiekty);
+
+//                        for (int indeksObiektu : supportObiekty) {
+//                            obiektyWyeliminowane.add(indeksObiektu);
+//                        }
+
+
+                            nowaRegula.support = supportObiekty.size();
+                            listaRegul1.add(nowaRegula);
+
+                            obiektyReguly.put(nowaRegula, supportObiekty);    // lista z obiektami ktore spelniaja regule (czyli te z supportu)
+
+
+                            break;
+                        }
+
+
+                    }
+                }
+            }
+
+
+
+
+        }
+
+
+//        System.out.println("Wyswietlam wszystkie utworzone reguly: ");
+//
+//        for (Regula r : wszystkieReguly) {
+//            System.out.println(r.deskryptor + " => " + r.decyzja);
+//        }
+
+
+        System.out.println("\nUtworzone reguly niesprzeczne: ");
+
+        int rcnt = 1;
+        for (Regula r : listaRegul1) {
+            System.out.print("R" + rcnt + ": " + r.deskryptor + " => " + r.decyzja + " [" + r.support + "]    Obiekty: ");
+            obiektyReguly.get(r).forEach(indeksObiektu -> System.out.print(indeksObiektu + 1 + ", "));
+            System.out.println(" ");
+            rcnt++;
+        }
+
+
+
+
         /*
 
-        // generowanie kombinacji dla stringow, przyklad ze dziala
-
-        List<String> lstStr = new ArrayList<>();
-        lstStr.add("1");
-        lstStr.add("2");
-        lstStr.add("3");
-        lstStr.add("4");
+        //     TEST TWORZENIA REGUL - TWORZY DOBRZE
 
 
-        List<String[]> kombStr = kombinujIChujString(lstStr,2);
+        List<Regula> regTest = new ArrayList<>();
 
-        for(int i=0;i<kombStr.size();i++){      // przelatuje dla kazdej kombinacji (al)
-            for(String itg : kombStr.get(i))
-            {
-                System.out.print(itg+",");
+        for(int i=0; i<sys.length; i++){
+            for (Integer[] itr : kombInt) {
+                int[] intArray2 = Arrays.stream(itr).mapToInt(Integer::intValue).toArray();
+
+                Regula nowaRegula = tworzRegule(sys[i], intArray2);
+
+                regTest.add(nowaRegula);
             }
-            System.out.println();
+
         }
 
+        for(Regula r : regTest){
+            System.out.println(r.deskryptor+" => "+r.decyzja);
+        }
 
         */
-
-
-
-        // tworzenie regul dla kombinacji dla obiektu obiektNr
-
-        int obiektNr = 2;
-        int rzad = 1;
-
-        List<Integer> lst = new ArrayList<>();
-        for(int i=0;i<s2[obiektNr+1].length-1;i++){
-            lst.add(i+1);
-        }
-        List<Integer[]> kombInt = kombinujIChuj(lst,rzad);
-
-        ArrayList<Regula> reguly = new ArrayList<>();
-
-        for(Integer[] it : kombInt){
-            int[] intArray = Arrays.stream(it).mapToInt(Integer::intValue).toArray();
-            reguly.add(tworzRegule(s2[obiektNr+1],intArray));      // czy regyly moge zrobic na podstawie jednego obiektu a potem je sprawdzac, czy moze mam robic dla kazdego obiektu?
-        }
-
-        System.out.println("Rząd "+rzad+", sprawdzam stworzone reguły dla obiektu "+obiektNr);
-
-        for(Regula r : reguly){
-            System.out.print("Utworzona regula: "+r.deskryptor+" => d="+r.decyzja);
-            if(!czySprzeczna(r,s2)) System.out.println("  X - Regula jest sprzeczna"); else System.out.println("  OK - Regula jest niesprzeczna, support: "+r.support);
-        }
-
-
-
-
-
-
-
-
-        //if() System.out.println("Tak, sprzeczna"); else System.out.println("Niesprzeczna");
-
-
-    //   jak znajde obiekt ktory ma taka sama wartosc deskryptora (ten sam deskryotpr) ale inna klase decyzyjna
-        //   bez sensu, totalnie niepotrzebne, mozna zrobic prosciej
-
-
-
 
 
     }
 
 
-    static List<Integer[]> kombinujIChuj(List<Integer> obiekt, int rzad){
+
+    static List<Integer> SupportObiekty(Regula r, String[][] obiekty)
+    {
+        List<Integer> indeksyOb = new ArrayList<>();
+        for (int i = 0; i < obiekty.length; i++)
+        {
+            if (czyObiektSpelniaRegule(r, obiekty[i]))
+                indeksyOb.add(i);
+        }
+        return indeksyOb;
+    }
+
+
+
+    public static List<int[]> kombinuj(List<Integer> obiekt, int rzad){
         List<List<Integer>> kombList = new ArrayList<>();   // deklaracja listy do przechowania wynikow z dodatkowej funkcji generujacej kombinacje
 
-        List<Integer[]> outList = new ArrayList<>();    // deklaracja listy (tablic) wynikowej
+        List<int[]> outList = new ArrayList<>();    // deklaracja listy (tablic) wynikowej
 
         Generator.combination(obiekt).simple(rzad).stream().forEach(kItem -> kombList.add(kItem));     // funkcja generowania kombinacji bez powtorzen z dodatkowej biblioteki
 
 
         for(List<Integer> kombItem : kombList){         // przelot dla kazdego elementu listy kombinacji
-            Integer[] kombArr = new Integer[rzad];      // deklaracja tablicy do przechowywania kombinacji
+            int[] kombArr = new int[rzad];      // deklaracja tablicy do przechowywania kombinacji
             for(int j=0;j<kombItem.size();j++){
                 kombArr[j] = kombItem.get(j);           // przepisywanie kombinacji z listy do tablicy
             }
@@ -150,7 +181,7 @@ public class Main {
 
 
 
-    static List<String[]> kombinujIChujString(List<String> obiekt, int rzad){
+    static List<String[]> kombinujS(List<String> obiekt, int rzad){
         List<List<String>> kombList = new ArrayList<>();   // deklaracja listy do przechowania wynikow z dodatkowej funkcji generujacej kombinacje
 
         List<String[]> outList = new ArrayList<>();    // deklaracja listy (tablic) wynikowej
@@ -171,66 +202,32 @@ public class Main {
 
 
     public static boolean czyObiektSpelniaRegule(Regula reg, String[] obiekt){
-        int ileSpelnia = 0;
-        int iloscRegul = reg.deskryptor.size();
 
         for(Map.Entry<Integer, String> deskr : reg.deskryptor.entrySet()){     // foreach dla kazdego deskryptora
-
-            //System.out.print("\n"+deskr.getKey()+" => "+deskr.getValue()+", D: "+reg.decyzja);
-
-            if(deskr.getValue().equals(obiekt[deskr.getKey()-1])){    //   && reg.decyzja.equals(obiekt[obiekt.length - 1])){
-                //System.out.print("   spełnia");
-                ileSpelnia++;
-            }
-
-            //else{ System.out.print("   niespełnia"); }
-
-        }
-
-        if(ileSpelnia == iloscRegul){
-            //System.out.println("\nObiekt spelnia wszystkie reguly\n\n");
-            return true;
-        }
-        else{
-            //System.out.println("\nnie spełnia reguł\n\n");
-            return false;
-        }
-
-    }
-
-
-
-
-    public static boolean czySprzeczna(Regula reg, String[][] systemDec){
-
-        ArrayList<String> obiektyTakieSame = new ArrayList<>();
-        ArrayList<String> obiektyNiesprzeczne = new ArrayList<>();
-
-        for(Map.Entry<Integer, String> deskr : reg.deskryptor.entrySet()){     // foreach dla kazdego deskryptora
-
-            //System.out.print("\n"+deskr.getKey()+" => "+deskr.getValue()+", D: "+reg.decyzja);
-
-            // musze dostac liste obiektow ktore maja deskryptory takie same jak zadany
-            for(String[] obiekt : systemDec){
-                if(czyObiektSpelniaRegule(reg, obiekt) && reg.decyzja != obiekt[obiekt.length - 1]){
-                    return false;
-                }
-                if(deskr.getValue().equals(obiekt[deskr.getKey()-1])){       // jak sie zgadza z wartoscia atrybutu
-                    obiektyTakieSame.add(obiekt[deskr.getKey()-1]);
-                    reg.support++;
-                    //System.out.println();
-                }
+            if(!deskr.getValue().equals(obiekt[deskr.getKey()-1])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false
+                return false;
             }
         }
         return true;
     }
 
 
+    public static boolean czyNieSprzeczna(Regula reg, String[][] systemDec) {
+        for (String[] obiekt : systemDec) {
+            if (czyObiektSpelniaRegule(reg, obiekt) && !reg.decyzja.equals(obiekt[obiekt.length - 1]) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
     public static Regula tworzRegule(String[] obiekt, int[] kombinacja){
         Regula r = new Regula();
         r.decyzja = obiekt[obiekt.length - 1];
         for(int nrAtrybutu : kombinacja){
-            String wartoscAtrybutu = obiekt[nrAtrybutu -1];   // korekta -1 zeby zgadzaly sie indeksy
+            String wartoscAtrybutu = obiekt[nrAtrybutu - 1];   // korekta -1 zeby zgadzaly sie indeksy
             r.deskryptor.put(nrAtrybutu, wartoscAtrybutu);
         }
         return r;
@@ -238,14 +235,36 @@ public class Main {
 
 
 
-    // napisac metode czy Regula jest sprzeczna na tej samej konstrukcji
-
-    //napisac metode ktora bedzie dzialac w przeciwny sposob
 
 
+    public static List<List<Integer>> Kombinacja(List<Integer> strings) {
+        if (strings.size() > 1) {
+            List<List<Integer>> result = new ArrayList<>();
+
+            for (Integer str : strings) {
+                List<Integer> subStrings = new ArrayList<>(strings);
+                subStrings.remove(str);
+
+                result.add(new ArrayList<Integer>(Arrays.asList(str)));
+
+                for (List<Integer> combinations : Kombinacja(subStrings)) {
+                    combinations.add(str);
+                    result.add(combinations);
+                }
+            }
+
+            return result;
+        } else {
+            List<List<Integer>> result = new ArrayList<>();
+            result.add(new ArrayList<Integer>(strings));
+            return result;
+        }
+    }
 
 
-    public static List<List<String>> Kombinacja(List<String> strings) {
+
+
+    public static List<List<String>> KombinacjaString(List<String> strings) {
         if (strings.size() > 1) {
             List<List<String>> result = new ArrayList<List<String>>();
 
@@ -255,7 +274,7 @@ public class Main {
 
                 result.add(new ArrayList<String>(Arrays.asList(str)));
 
-                for (List<String> combinations : Kombinacja(subStrings)) {
+                for (List<String> combinations : KombinacjaString(subStrings)) {
                     combinations.add(str);
                     result.add(combinations);
                 }
