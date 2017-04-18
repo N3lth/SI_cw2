@@ -11,10 +11,10 @@ import java.util.List;
 public class Main {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws java.io.FileNotFoundException{
 
 
-        String[][] s1 = {
+        String[][] systemWyklad = {
                                 {"1","2","T","1","0"},
                                 {"2","3","N","1","1"},
                                 {"3","4","T","1","1"},
@@ -22,7 +22,7 @@ public class Main {
                                 {"1","1","T","2","0"}
         };
 
-        String[][] s2 = {
+        String[][] systemPDF = {
                             {"1","1","1","1","3","1","1"},
                             {"1","1","1","1","3","2","1"},
                             {"1","1","1","3","2","1","0"},
@@ -34,19 +34,21 @@ public class Main {
 
         };
 
+        String[][] systemZPliku = readFile("SystemDecyzyjny.txt",8, 7);
 
 
 
-        String[][] sys = s2;
+
+        String[][] sys = systemPDF;     // wybor systemu
 
 
         Map<Regula,List<Integer>> obiektyReguly = new HashMap<>();
 
-        List<Regula> wszystkieReguly = new ArrayList<>();
+        // List<Regula> wszystkieReguly = new ArrayList<>();
 
         List<Integer> obiektyWyeliminowane = new ArrayList<>();
 
-        List<Regula> listaRegul1 = new ArrayList<>();
+        List<Regula> utworzoneReguly = new ArrayList<>();
 
 
         for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
@@ -66,26 +68,26 @@ public class Main {
                     for (int[] kombinacjeArr : kombinacjeWszystkie) {
 
 
-                        Regula nowaRegula = tworzRegule(sys[obiektNr], kombinacjeArr);
+                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
 
-                        wszystkieReguly.add(nowaRegula);     //  lista pomocnicza ze wszystkimi regulami
+                        // wszystkieReguly.add(reg);     //  lista pomocnicza ze wszystkimi regulami do sprawdzenia dzialania programu
 
-                        if (czyNieSprzeczna(nowaRegula, sys)) {     // jesli regula jest niesprzeczna
-                            List<Integer> supportObiekty = SupportObiekty(nowaRegula, sys);
-                            obiektyWyeliminowane.addAll(supportObiekty);
-
-//                        for (int indeksObiektu : supportObiekty) {
-//                            obiektyWyeliminowane.add(indeksObiektu);
-//                        }
+                        if (czyNieSprzeczna(reg, sys)) {     // jesli regula jest niesprzeczna
 
 
-                            nowaRegula.support = supportObiekty.size();
-                            listaRegul1.add(nowaRegula);
-
-                            obiektyReguly.put(nowaRegula, supportObiekty);    // lista z obiektami ktore spelniaja regule (czyli te z supportu)
+                            List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
+                            obiektyWyeliminowane.addAll(supportObiekty);     // lista ze wszystkimi obiektami wyeliminowanymi z rozwazan
 
 
-                            break;
+                            reg.support = supportObiekty.size();      // ustawienie wartosci supportu jako wielkosc listy z obiektami supportu
+
+
+                            utworzoneReguly.add(reg);     // dodanie do listy wynikowej reguly
+
+                            obiektyReguly.put(reg, supportObiekty);    // lista z obiektami ktore spelniaja regule (czyli te z supportu)
+
+
+                            break;    // przerwanie petli w momencie kiedy zostanie znaleziona regula niesprzeczna
                         }
 
 
@@ -99,6 +101,11 @@ public class Main {
         }
 
 
+
+
+
+        //        WYSWIETLENIE WSZYSTKICH UTWORZONY REGUL -- DO TESTU
+
 //        System.out.println("Wyswietlam wszystkie utworzone reguly: ");
 //
 //        for (Regula r : wszystkieReguly) {
@@ -106,22 +113,31 @@ public class Main {
 //        }
 
 
+
+
+
+
         System.out.println("\nUtworzone reguly niesprzeczne: ");
 
-        int rcnt = 1;
-        for (Regula r : listaRegul1) {
-            System.out.print("R" + rcnt + ": " + r.deskryptor + " => " + r.decyzja + " [" + r.support + "]    Obiekty: ");
-            obiektyReguly.get(r).forEach(indeksObiektu -> System.out.print(indeksObiektu + 1 + ", "));
-            System.out.println(" ");
-            rcnt++;
+        int licznikRegul = 1;
+        for (Regula r : utworzoneReguly) {
+            System.out.print("\nR" + licznikRegul + ": ");
+            for(int key : r.deskryptor.keySet()){
+                System.out.print("(a"+key+"="+r.deskryptor.get(key)+") ");
+            }
+            System.out.print("=> d=" + r.decyzja + " [" + r.support + "]    Obiekty: ");
+            obiektyReguly.get(r).forEach(indeksObiektu -> System.out.print(indeksObiektu + 1 + " "));
+            licznikRegul++;
         }
+
+
 
 
 
 
         /*
 
-        //     TEST TWORZENIA REGUL - TWORZY DOBRZE
+        //     TEST TWORZENIA REGUL - SPRAWDZENIE CZY TWORZY DOBRZE
 
 
         List<Regula> regTest = new ArrayList<>();
@@ -148,15 +164,15 @@ public class Main {
 
 
 
-    static List<Integer> SupportObiekty(Regula r, String[][] obiekty)
+    public static List<Integer> obiektySupportu(Regula r, String[][] system)
     {
-        List<Integer> indeksyOb = new ArrayList<>();
-        for (int i = 0; i < obiekty.length; i++)
+        List<Integer> obiektyIdx = new ArrayList<>();
+        for (int i = 0; i < system.length; i++)
         {
-            if (czyObiektSpelniaRegule(r, obiekty[i]))
-                indeksyOb.add(i);
+            if (czyObiektSpelniaRegule(r, system[i]))
+                obiektyIdx.add(i);
         }
-        return indeksyOb;
+        return obiektyIdx;
     }
 
 
