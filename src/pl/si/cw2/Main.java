@@ -1,10 +1,12 @@
 package pl.si.cw2;
 
 
+import com.sun.org.apache.regexp.internal.RE;
 import org.paukov.combinatorics3.Generator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 
@@ -204,6 +206,7 @@ public class Main {
 
 
         List<Regula> regAll = new ArrayList<>();
+        List<Integer> obiektyWyeliminowane = new ArrayList<>();
 
         List<Regula> listaRegul2 = new ArrayList<>();
         int[][][] mn = tworzMacierzNieodroznialnosci(sys);
@@ -220,43 +223,54 @@ public class Main {
 
 
 
+
             for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
-
-                for (int[] kombinacjeArr : kombinacjeWszystkie) {
-
-                    Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
-
-                    //System.out.println("Regula: "+reg.deskryptor+" => "+reg.decyzja);
-
-                    regAll.add(reg);
+                if(!obiektyWyeliminowane.contains(obiektNr)) {
+                    for (int[] kombinacjeArr : kombinacjeWszystkie) {
 
 
+                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
+                        regAll.add(reg);
 
-                    if(!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {
-
-                        System.out.println("Kombinacja:");
-                        Arrays.stream(kombinacjeArr).forEach(x -> System.out.print(x+", "));
+                        if (czyNieSprzeczna(reg, sys)) {
+                            System.out.println("Niesprzeczna: "+reg.deskryptor+" => "+reg.decyzja);
 
 
-                        System.out.println("\n\nWiersz:");
-                        int ct = 1;
-                        for(int[] a : mn[obiektNr]){
-                            System.out.println("\n"+ct+":");
-                            Arrays.stream(a).forEach(x -> System.out.print((x+1)+", "));
-                            ct++;
+
+
+                            if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr]) && !czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
+
+
+                                //if (!czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
+
+                                    reg.support = liczSupport(reg, sys);
+                                    listaRegul2.add(reg);
+                                    obiektyWyeliminowane.add(obiektNr);
+
+
+//                                    System.out.println("Kombinacja:");
+//                                    Arrays.stream(kombinacjeArr).forEach(x -> System.out.print(x + ", "));
+//
+//
+//                                    System.out.println("\n\nWiersz:");
+//                                    int ct = 1;
+//                                    for (int[] a : mn[obiektNr]) {
+//                                        System.out.println(ct + ":");
+//                                        Arrays.stream(a).forEach(x -> System.out.print((x + 1) + ", "));
+//                                        ct++;
+//                                    }
+//
+//                                    System.out.println("\n");
+
+
+                                    break;
+
+                                //}
+                            }
+
                         }
 
-                        System.out.println("\n");
-
-                        if (!czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
-
-                            reg.support = liczSupport(reg, sys);
-                            listaRegul2.add(reg);
-                            //break;
-
-                        }
                     }
-
                 }
 
 
@@ -265,7 +279,7 @@ public class Main {
 
 
 
-
+        System.out.println("\n\nReguly algorytmu:\n");
         for(Regula ro : listaRegul2){
             System.out.println(ro.deskryptor +" => "+ ro.decyzja +" ["+ro.support+"]");
         }
@@ -279,7 +293,7 @@ public class Main {
 
 
 
-
+/*
 
         //      TEST ZAWIERANIA REGUL
 
@@ -305,14 +319,37 @@ public class Main {
         r1.decyzja = "1";
 
 
-        r1a.deskryptor.put(3,"1");
-        r1a.deskryptor.put(4,"1");
+        r1a.deskryptor.put(2,"5");
+        r1a.deskryptor.put(4,"3");
         r1a.decyzja = "0";
 
-        System.out.println(czyRegulaZawieraRegule(r1,r1a));
+        r1b.deskryptor.put(3,"1");
+        r1b.decyzja = "1";
+
+        List<Regula> tst = new ArrayList<>();
+        tst.add(r1a);
+        tst.add(r1b);
+
+        System.out.println(czyRegulaZawieraJednaZRegul(r1,tst));
+
+*/
 
 
 
+
+        //     SPRAWDZANIE CZY KOMBINACJA ZAWIERA SIE W KOMORCE
+
+        int[][] wiersz =   {
+                                {1,2,3,6},
+                                {1,2,3},
+                                {1,2,3,4},
+                                {1,2,5},
+                                {1,2,6}
+                            };
+
+        int[] kombinacja = {1,2};
+
+        System.out.println(czyKombinacjaZawieraSieWWierszu(kombinacja, wiersz));
 
 
 
@@ -539,10 +576,8 @@ public class Main {
 
     public static Boolean czyKombinacjaZawieraSieWKomorce(int[] kombinacja, int[] komorka){
         List<Integer> komorkaList = new ArrayList<>();
-        for (int index = 0; index < komorka.length; index++)
-        {
-            komorkaList.add(komorka[index]);
-        }
+        for (int index = 0; index < komorka.length; index++) komorkaList.add(komorka[index]);        //  konwercja na liste bo java nie zawiera wbudowanej metody contains dla tablicy
+
         for(int elementKombinacji : kombinacja){
             if(!komorkaList.contains(elementKombinacji)){
                 return false;
