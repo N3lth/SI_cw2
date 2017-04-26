@@ -1,5 +1,6 @@
 package pl.si.cw2;
 
+
 import org.paukov.combinatorics3.Generator;
 
 import java.io.File;
@@ -40,6 +41,12 @@ public class Main {
 
 
         String[][] sys = systemPDF;     // wybor systemu
+
+
+
+        /*
+
+        //     ALGORYTM 1   --   IMPLEMENTACJA
 
 
         Map<Regula,List<Integer>> obiektyReguly = new HashMap<>();
@@ -131,7 +138,7 @@ public class Main {
         }
 
 
-
+        */
 
 
 
@@ -160,8 +167,178 @@ public class Main {
         */
 
 
+
+
+
+
+
+
+
+        //      ALGORYTM 2
+
+        System.out.print("\n\n");
+        /*
+
+
+        //     SPRAWDZENIE CZY DOBRZE TWORZY MACIERZ   --   OK
+
+
+        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
+        for(int i=0; i<mn.length; i++){
+            for(int j=0; j<mn[i].length; j++){
+                System.out.println("ob"+(j+1)+"");
+                if(mn[i][j].length != 0){
+                    Arrays.stream(mn[i][j]).forEach(a -> System.out.print("a"+(a+1)+" "));
+                }
+                else System.out.print("    X");
+                System.out.println("\n\n");
+            }
+            System.out.println("-----------------------\n");
+        }
+
+        */
+
+
+
+
+
+
+        List<Regula> regAll = new ArrayList<>();
+
+        List<Regula> listaRegul2 = new ArrayList<>();
+        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
+
+        for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
+
+
+
+            List<Integer> listaObiektow = new ArrayList<>();
+            for (int i = 0; i < sys[0].length - 1; i++) {
+                listaObiektow.add(i + 1);
+            }
+            List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad);
+
+
+
+            for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
+
+                for (int[] kombinacjeArr : kombinacjeWszystkie) {
+
+                    Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
+
+                    //System.out.println("Regula: "+reg.deskryptor+" => "+reg.decyzja);
+
+                    regAll.add(reg);
+
+
+
+                    if(!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {
+
+                        System.out.println("Kombinacja:");
+                        Arrays.stream(kombinacjeArr).forEach(x -> System.out.print(x+", "));
+
+
+                        System.out.println("\n\nWiersz:");
+                        int ct = 1;
+                        for(int[] a : mn[obiektNr]){
+                            System.out.println("\n"+ct+":");
+                            Arrays.stream(a).forEach(x -> System.out.print((x+1)+", "));
+                            ct++;
+                        }
+
+                        System.out.println("\n");
+
+                        if (!czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
+
+                            reg.support = liczSupport(reg, sys);
+                            listaRegul2.add(reg);
+                            //break;
+
+                        }
+                    }
+
+                }
+
+
+            }
+        }
+
+
+
+
+        for(Regula ro : listaRegul2){
+            System.out.println(ro.deskryptor +" => "+ ro.decyzja +" ["+ro.support+"]");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        //      TEST ZAWIERANIA REGUL
+
+        Regula r1 = new Regula();
+        Regula r2 = new Regula();
+        Regula r1a = new Regula();
+        Regula r2a = new Regula();
+        Regula r1b = new Regula();
+        Regula r2b = new Regula();
+        Regula r1c = new Regula();
+        Regula r2c = new Regula();
+        Regula r1d = new Regula();
+        Regula r2d = new Regula();
+        Regula r1e = new Regula();
+        Regula r2e = new Regula();
+
+
+
+        //    (a3 = 1) & (a4 = 1) & (a5 = 3) => (d = 1)
+        r1.deskryptor.put(3,"1");
+        r1.deskryptor.put(4,"1");
+        r1.deskryptor.put(5,"1");
+        r1.decyzja = "1";
+
+
+        r1a.deskryptor.put(3,"1");
+        r1a.deskryptor.put(4,"1");
+        r1a.decyzja = "0";
+
+        System.out.println(czyRegulaZawieraRegule(r1,r1a));
+
+
+
+
+
+
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //      METODY DO 1 ALGORYTMU
 
 
     public static List<Integer> obiektySupportu(Regula r, String[][] system)
@@ -304,6 +481,115 @@ public class Main {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //      METODY DO 2 ALGORYTMU
+
+    public static int[] tworzKomorke(String[] ob1, String[] ob2){
+        List<Integer> komorka = new ArrayList<>();
+        if(ob1[ob1.length-1].equals(ob2[ob2.length-1])){         //   sprawdzam, czy decyzje sa identyczne
+            return komorka.stream().mapToInt(i -> i).toArray();
+        }
+
+        for(int i=0;i<ob1.length;i++){          //    jak decyzje sa rozne
+            if(ob1[i] == ob2[i]){
+                komorka.add(i);
+            }
+        }
+
+        return komorka.stream().mapToInt(i -> i).toArray();
+    }
+
+
+
+    public static int[][][] tworzMacierzNieodroznialnosci(String[][] system){
+        int[][][] wynik = new int[system.length][][];
+        for(int i=0; i<system.length; i++){
+            wynik[i] = new int[system.length][];
+            for(int j = 0; j<system.length; j++){
+                wynik[i][j] = tworzKomorke(system[i], system[j]);
+            }
+        }
+        return wynik;
+    }
+
+
+    public static Boolean czyKombinacjaZawieraSieWKomorce(int[] kombinacja, int[] komorka){
+        List<Integer> komorkaList = new ArrayList<>();
+        for (int index = 0; index < komorka.length; index++)
+        {
+            komorkaList.add(komorka[index]);
+        }
+        for(int elementKombinacji : kombinacja){
+            if(!komorkaList.contains(elementKombinacji)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static Boolean czyKombinacjaZawieraSieWWierszu(int[] kombinacja, int[][] wiersz){
+        for(int komorka[] : wiersz){
+            if(czyKombinacjaZawieraSieWKomorce(kombinacja, komorka)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Boolean czyRegulaZawieraRegule(Regula rWyzszegoRzedu, Regula rNizszegoRzedu){
+
+        for(Map.Entry<Integer, String> deskr : rNizszegoRzedu.deskryptor.entrySet()){     // foreach kazdego deskryptora dla rNizszegoRzedu
+            if(!rWyzszegoRzedu.deskryptor.entrySet().contains(deskr)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static Boolean czyRegulaZawieraJednaZRegul(Regula rWyzszegoRzedu, List<Regula> listaRegulNizszegoRzedu){
+        for(Regula rNizszegoRzedu : listaRegulNizszegoRzedu){
+            if(czyRegulaZawieraRegule(rWyzszegoRzedu, rNizszegoRzedu)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int liczSupport(Regula r, String[][] system){
+        r.support = 0;
+        for(int i = 0; i<system.length; i++){
+            if(czyObiektSpelniaRegule(r,system[i])){
+                r.support++;
+            }
+        }
+        return r.support;
+    }
+
+    //       METODT UNIWERSALNE
 
     public static String[][] readFile(String src, int rows, int cols) throws FileNotFoundException {
         File plik1 = new File(src);
