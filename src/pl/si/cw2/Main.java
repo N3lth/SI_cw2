@@ -32,8 +32,8 @@ public class Main {
                             {"1","1","1","3","3","2","1"},
                             {"1","1","2","1","2","1","0"},
                             {"1","1","2","1","2","2","1"},
-                            {"1","1","2","3","3","1","0"},
-                            {"1","1","2","3","4","1","1"}
+                            {"1","1","2","2","3","1","0"},
+                            {"1","1","2","2","4","1","1"}
 
         };
 
@@ -211,37 +211,44 @@ public class Main {
         List<Regula> listaRegul2 = new ArrayList<>();
         int[][][] mn = tworzMacierzNieodroznialnosci(sys);
 
-        for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
 
 
 
-            List<Integer> listaObiektow = new ArrayList<>();
-            for (int i = 0; i < sys[0].length - 1; i++) {
-                listaObiektow.add(i + 1);
-            }
+        /*
+
+        //for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
+
+        int rzad = 1;
+
+
             List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad);
 
 
 
-
             for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
-                if(!obiektyWyeliminowane.contains(obiektNr)) {
+
+
+                //if(!obiektyWyeliminowane.contains(obiektNr)) {
+
+
                     for (int[] kombinacjeArr : kombinacjeWszystkie) {
 
 
-                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
-                        regAll.add(reg);
 
-                        if (czyNieSprzeczna(reg, sys)) {
-                            System.out.println("Niesprzeczna: "+reg.deskryptor+" => "+reg.decyzja);
 
+//                        if (czyNieSprzeczna(reg, sys)) {    //   niewiem czy to ma byc ?
+//                            System.out.println("Niesprzeczna: "+reg.deskryptor+" => "+reg.decyzja);
 
 
 
-                            if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr]) && !czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
+
+                            if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])){// && !czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
 
 
-                                //if (!czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
+                                Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
+                                regAll.add(reg);
+
+                                if (!czyRegulaZawieraJednaZRegul(reg, listaRegul2)) {
 
                                     reg.support = liczSupport(reg, sys);
                                     listaRegul2.add(reg);
@@ -265,23 +272,133 @@ public class Main {
 
                                     break;
 
-                                //}
+                                }
                             }
 
-                        }
+                        //}
 
                     }
+                //}
+
+
+            }
+        //}
+
+
+        */
+
+
+        Map<Integer, Integer> wyeliminowaneAll = new HashMap<>();
+
+
+        //int rzad = 2;
+
+        for(int rzad = 0; rzad < sys[0].length - 1; rzad++) {
+
+
+
+            for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
+//                System.out.println("\nKombinacja - rzad " + rzad+1);
+
+                // [[], [5], [], [5], [], [5], [], [4]]
+
+
+
+                List<Integer> listaObiektow = new ArrayList<>();
+                for (int i = 0; i < sys[0].length - 1; i++) {
+
+                    listaObiektow.add(i);   /// kombinacje od 0
                 }
 
 
+
+                if(rzad > 0){
+                    //int z1 = wyeliminowaneAll.get(obiektNr);
+                    if(wyeliminowaneAll.get(obiektNr) != null){
+                        listaObiektow.remove(wyeliminowaneAll.get(obiektNr));
+                    }
+
+                }
+                // wywalic obiekty ktore sa w regulach tylko dla rzedu 1 z kombinacji
+
+                List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad+1);
+
+
+
+
+
+                for (int[] kombinacjeArr : kombinacjeWszystkie) {    // kombinacje sa ok
+
+                    System.out.println("Dla obiektu: "+obiektNr);
+                    Arrays.stream(kombinacjeArr).forEach(k -> System.out.print(k + ", "));
+                    System.out.println();
+
+                    if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {
+
+
+                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
+
+                        //regAll.add(reg);
+
+                        if (!czyRegulaZawieraJednaZRegul(reg, listaRegul2) && !powtarzajacaSieRegula(listaRegul2, reg)) {
+
+                            reg.support = liczSupport(reg, sys);
+                            listaRegul2.add(reg);
+
+
+                            List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
+                            //obiektyWyeliminowane.addAll(supportObiekty);     // lista ze wszystkimi obiektami wyeliminowanymi z rozwazan
+
+                            if(rzad == 0){
+                                for(Integer miejsce : supportObiekty){
+                                    for(Integer key : reg.deskryptor.keySet())
+                                    wyeliminowaneAll.put(miejsce, key);
+                                }
+
+                            }
+
+                            //System.out.println(wyeliminowaneAll);
+
+                            // pominac deskryptory ktore sa dla 1 rzedu
+                            //if rzad == 0:
+                            //for deskryptor in r.deskryptory:
+                            //pomijaneDeskryptory.append(deskryptor)
+                            // pomijaneDeskryptory = [[] for i in data]
+
+
+                            /*
+
+ [[], [5], [], [5], [], [5], [], [4]]
+
+
+                              for i in range(len(macierz)):
+        stringNumeryKolumn = ''
+        for x in range(len(data[0]) - 1):
+            stringNumeryKolumn += str(x)
+        if rzad > 0:
+            if pomijaneDeskryptory != []:
+                for liczba in pomijaneDeskryptory:
+                    stringNumeryKolumn = stringNumeryKolumn.replace(str(liczba),
+
+
+                             */
+
+                            //break;
+                        }
+
+
+                    }
+                }
             }
         }
 
 
 
+
         System.out.println("\n\nReguly algorytmu:\n");
         for(Regula ro : listaRegul2){
-            System.out.println(ro.deskryptor +" => "+ ro.decyzja +" ["+ro.support+"]");
+//            ro.deskryptor.entrySet()
+            System.out.println(ro.deskryptor.entrySet() +" => "+ ro.decyzja +" ["+ro.support+"]");
         }
 
 
@@ -293,7 +410,7 @@ public class Main {
 
 
 
-/*
+
 
         //      TEST ZAWIERANIA REGUL
 
@@ -318,21 +435,34 @@ public class Main {
         r1.deskryptor.put(5,"1");
         r1.decyzja = "1";
 
+        // [1=1, 2=1, 4=2]
 
-        r1a.deskryptor.put(2,"5");
+        r2.deskryptor.put(1,"1");
+        r2.deskryptor.put(2,"1"); //
+        r2.deskryptor.put(4,"2"); //
+        r2.decyzja = "0";
+
+        r2a.deskryptor.put(2,"1");
+        r2a.deskryptor.put(4,"2");
+        //r2a.deskryptor.put(5,"0");
+        r2a.decyzja = "0";
+
+
         r1a.deskryptor.put(4,"3");
+        r1a.deskryptor.put(6,"1");
         r1a.decyzja = "0";
 
         r1b.deskryptor.put(3,"1");
-        r1b.decyzja = "1";
+        r1b.deskryptor.put(4,"1");
+        r1b.decyzja = "1";                // decyzja jest tez wazna
 
         List<Regula> tst = new ArrayList<>();
         tst.add(r1a);
-        tst.add(r1b);
+        tst.add(r2a);
 
-        System.out.println(czyRegulaZawieraJednaZRegul(r1,tst));
+        System.out.println(czyRegulaZawieraJednaZRegul(r2,tst));
 
-*/
+
 
 
 
@@ -349,7 +479,7 @@ public class Main {
 
         int[] kombinacja = {1,2};
 
-        System.out.println(czyKombinacjaZawieraSieWWierszu(kombinacja, wiersz));
+        //System.out.println(czyKombinacjaZawieraSieWWierszu(kombinacja, wiersz));
 
 
 
@@ -434,7 +564,7 @@ public class Main {
     public static boolean czyObiektSpelniaRegule(Regula reg, String[] obiekt){
 
         for(Map.Entry<Integer, String> deskr : reg.deskryptor.entrySet()){     // foreach dla kazdego deskryptora
-            if(!deskr.getValue().equals(obiekt[deskr.getKey()-1])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false
+            if(!deskr.getValue().equals(obiekt[deskr.getKey()])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false   // korekcja
                 return false;
             }
         }
@@ -457,7 +587,7 @@ public class Main {
         Regula r = new Regula();
         r.decyzja = obiekt[obiekt.length - 1];
         for(int nrAtrybutu : kombinacja){
-            String wartoscAtrybutu = obiekt[nrAtrybutu - 1];   // korekta -1 zeby zgadzaly sie indeksy
+            String wartoscAtrybutu = obiekt[nrAtrybutu];   // korekta -1 zeby zgadzaly sie indeksy
             r.deskryptor.put(nrAtrybutu, wartoscAtrybutu);
         }
         return r;
@@ -596,23 +726,42 @@ public class Main {
     }
 
     public static Boolean czyRegulaZawieraRegule(Regula rWyzszegoRzedu, Regula rNizszegoRzedu){
+        int z = 0;
 
         for(Map.Entry<Integer, String> deskr : rNizszegoRzedu.deskryptor.entrySet()){     // foreach kazdego deskryptora dla rNizszegoRzedu
-            if(!rWyzszegoRzedu.deskryptor.entrySet().contains(deskr)){
-                return false;
+            System.out.println(deskr);
+            if(rNizszegoRzedu.deskryptor.size() < rWyzszegoRzedu.deskryptor.size()) {
+                if (rWyzszegoRzedu.deskryptor.entrySet().contains(deskr) && rWyzszegoRzedu.decyzja.equals(rNizszegoRzedu.decyzja)) {
+                    z++;
+                }
             }
         }
-        return true;
+
+        if(z>=2) return true;
+        else return false;
     }
 
     public static Boolean czyRegulaZawieraJednaZRegul(Regula rWyzszegoRzedu, List<Regula> listaRegulNizszegoRzedu){
-        for(Regula rNizszegoRzedu : listaRegulNizszegoRzedu){
-            if(czyRegulaZawieraRegule(rWyzszegoRzedu, rNizszegoRzedu)){
+        for(Regula rNizszegoRzedu : listaRegulNizszegoRzedu) {
+            if (rNizszegoRzedu.deskryptor.size() > 1) {
+                if (czyRegulaZawieraRegule(rWyzszegoRzedu, rNizszegoRzedu)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public static Boolean powtarzajacaSieRegula(List<Regula> tymczasowaListaRegul, Regula regula){
+        for(Regula r : tymczasowaListaRegul){
+            if(r.deskryptor.equals(regula.deskryptor) && r.decyzja.equals(regula.decyzja)){
                 return true;
             }
         }
         return false;
     }
+
 
     public static int liczSupport(Regula r, String[][] system){
         r.support = 0;
