@@ -179,6 +179,14 @@ public class Main {
         //      ALGORYTM 2
 
         System.out.print("\n\n");
+
+
+
+
+
+
+
+
         /*
 
 
@@ -201,7 +209,7 @@ public class Main {
         */
 
 
-
+/*
 
 
 
@@ -279,7 +287,7 @@ public class Main {
 
 
 
-
+*/
 
 
 
@@ -357,6 +365,33 @@ public class Main {
         //System.out.println(czyKombinacjaZawieraSieWWierszu(kombinacja, wiersz));
 
 */
+
+
+
+
+
+
+
+
+
+
+    //   ALGORYTM 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 
