@@ -206,7 +206,7 @@ public class Main {
 
 
 
-        List<Regula> rwgulyExhaustive = new ArrayList<>();
+        List<Regula> regulyExhaustive = new ArrayList<>();
         int[][][] mn = tworzMacierzNieodroznialnosci(sys);
 
         Map<Integer, Integer> wyeliminowaneAtrybuty = new HashMap<>();
@@ -242,17 +242,17 @@ public class Main {
                         Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
 
 
-                        if (!czyRegulaZawieraJednaZRegul(reg, rwgulyExhaustive) && !powtarzajacaSieRegula(rwgulyExhaustive, reg)) {   // wyrzucam reguly ktore sie powtarzaja na liscie
+                        if (!czyRegulaZawieraJednaZRegul(reg, regulyExhaustive) && !powtarzajacaSieRegula(regulyExhaustive, reg)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
 
                             List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
 
                             reg.support = supportObiekty.size();
-                            rwgulyExhaustive.add(reg);
+                            regulyExhaustive.add(reg);
 
                             if(rzad == 0){   // dla rzedu 1 eliminuje z rozwazan atrybuty na dla odpowiednich obiektow
-                                for(Integer obiekt : supportObiekty){
-                                    for(Integer atrybut : reg.deskryptor.keySet())
-                                    wyeliminowaneAtrybuty.put(obiekt, atrybut);
+                                for(Integer obiekt : supportObiekty){ // kazdy obiekt z listy obiektow supportu
+                                    for(Integer atrybut : reg.deskryptor.keySet())  // kazdy atrybut z zestawu artybutow (kluczy) reguly
+                                        wyeliminowaneAtrybuty.put(obiekt, atrybut);
                                 }
 
                             }
@@ -269,7 +269,7 @@ public class Main {
 
 
         System.out.println("\n\nReguly algorytmu Exhaustive:\n");
-        for(Regula r : rwgulyExhaustive){
+        for(Regula r : regulyExhaustive){
             for(Map.Entry<Integer, String> desk : r.deskryptor.entrySet()) {
                 System.out.print("(a"+(desk.getKey()+1)+"="+desk.getValue()+") ");
             }
