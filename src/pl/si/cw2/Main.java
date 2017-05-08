@@ -23,15 +23,14 @@ public class Main {
         };
 
         String[][] systemPDF = {
-                            {"1","1","1","1","3","1","1"},
-                            {"1","1","1","1","3","2","1"},
-                            {"1","1","1","3","2","1","0"},
-                            {"1","1","1","3","3","2","1"},
-                            {"1","1","2","1","2","1","0"},
-                            {"1","1","2","1","2","2","1"},
-                            {"1","1","2","3","3","1","0"},
-                            {"1","1","2","3","4","1","1"}
-
+                                {"1","1","1","1","3","1","1"},
+                                {"1","1","1","1","3","2","1"},
+                                {"1","1","1","3","2","1","0"},
+                                {"1","1","1","3","3","2","1"},
+                                {"1","1","2","1","2","1","0"},
+                                {"1","1","2","1","2","2","1"},
+                                {"1","1","2","2","3","1","0"},
+                                {"1","1","2","2","4","1","1"}
         };
 
         String[][] systemZPliku = readFile("SystemDecyzyjny.txt",8, 7);
@@ -50,16 +49,15 @@ public class Main {
 
         List<Regula> utworzoneReguly = new ArrayList<>();
 
+        List<Integer> listaObiektow = new ArrayList<>();
+        for (int i = 0; i < sys[0].length - 1; i++) {
+            listaObiektow.add(i + 1);
+        }
+
 
         for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
 
-
-            List<Integer> listaObiektow = new ArrayList<>();
-            for (int i = 0; i < sys[0].length - 1; i++) {
-                listaObiektow.add(i + 1);
-            }
             List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad);
-
 
             for (int obiektNr = 0; obiektNr < sys.length; obiektNr++) {
 
@@ -125,7 +123,12 @@ public class Main {
             for(int key : r.deskryptor.keySet()){
                 System.out.print("(a"+key+"="+r.deskryptor.get(key)+") ");
             }
-            System.out.print("=> d=" + r.decyzja + " [" + r.support + "]    Obiekty: ");
+            if(r.support > 1) {
+                System.out.print("=> d=" + r.decyzja + " [" + r.support + "]    Obiekty: ");
+            }
+            else{
+                System.out.print("=> d=" + r.decyzja + "    Obiekty: ");
+            }
             obiektyReguly.get(r).forEach(indeksObiektu -> System.out.print(indeksObiektu + 1 + " "));
             licznikRegul++;
         }
