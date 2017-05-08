@@ -269,11 +269,20 @@ public class Main {
 
 
         System.out.println("\n\nReguly algorytmu Exhaustive:\n");
+
+        int nrReguly = 0;
         for(Regula r : regulyExhaustive){
+            System.out.print("R"+nrReguly+": ");
             for(Map.Entry<Integer, String> desk : r.deskryptor.entrySet()) {
                 System.out.print("(a"+(desk.getKey()+1)+"="+desk.getValue()+") ");
             }
-            System.out.println("=> " + "d="+r.decyzja + " [" + r.support + "]");
+            if(r.support > 1) {
+                System.out.println("=> " + "(d=" + r.decyzja + ") [" + r.support + "]");
+            }
+            else{
+                System.out.println("=> " + "(d=" + r.decyzja + ")");
+            }
+            nrReguly++;
         }
 
 
