@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class Main {
@@ -39,138 +40,7 @@ public class Main {
 
         String[][] systemZPliku = readFile("SystemDecyzyjny.txt",8, 7);
 
-
-
-
         String[][] sys = systemPDF;     // wybor systemu
-
-
-
-        /*
-
-        //     ALGORYTM 1   --   IMPLEMENTACJA
-
-
-        Map<Regula,List<Integer>> obiektyReguly = new HashMap<>();
-
-        // List<Regula> wszystkieReguly = new ArrayList<>();
-
-        List<Integer> obiektyWyeliminowane = new ArrayList<>();
-
-        List<Regula> utworzoneReguly = new ArrayList<>();
-
-
-        for(int rzad = 1; rzad <= sys[0].length - 1; rzad++) {
-
-
-            List<Integer> listaObiektow = new ArrayList<>();
-            for (int i = 0; i < sys[0].length - 1; i++) {
-                listaObiektow.add(i + 1);
-            }
-            List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad);
-
-
-            for (int obiektNr = 0; obiektNr < sys.length; obiektNr++) {
-
-                if (!obiektyWyeliminowane.contains(obiektNr)) {     // jak obiekt nie jest w wyeliminowanych
-
-                    for (int[] kombinacjeArr : kombinacjeWszystkie) {
-
-
-                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
-
-                        // wszystkieReguly.add(reg);     //  lista pomocnicza ze wszystkimi regulami do sprawdzenia dzialania programu
-
-                        if (czyNieSprzeczna(reg, sys)) {     // jesli regula jest niesprzeczna
-
-
-                            List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
-                            obiektyWyeliminowane.addAll(supportObiekty);     // lista ze wszystkimi obiektami wyeliminowanymi z rozwazan
-
-
-                            reg.support = supportObiekty.size();      // ustawienie wartosci supportu jako wielkosc listy z obiektami supportu
-
-
-                            utworzoneReguly.add(reg);     // dodanie do listy wynikowej reguly
-
-                            obiektyReguly.put(reg, supportObiekty);    // lista z obiektami ktore spelniaja regule (czyli te z supportu)
-
-
-                            break;    // przerwanie petli w momencie kiedy zostanie znaleziona regula niesprzeczna
-                        }
-
-
-                    }
-                }
-            }
-
-
-
-
-        }
-
-
-
-
-
-        //        WYSWIETLENIE WSZYSTKICH UTWORZONY REGUL -- DO TESTU
-
-//        System.out.println("Wyswietlam wszystkie utworzone reguly: ");
-//
-//        for (Regula r : wszystkieReguly) {
-//            System.out.println(r.deskryptor + " => " + r.decyzja);
-//        }
-
-
-
-
-
-
-        System.out.println("\nUtworzone reguly niesprzeczne: ");
-
-        int licznikRegul = 1;
-        for (Regula r : utworzoneReguly) {
-            System.out.print("\nR" + licznikRegul + ": ");
-            for(int key : r.deskryptor.keySet()){
-                System.out.print("(a"+key+"="+r.deskryptor.get(key)+") ");
-            }
-            System.out.print("=> d=" + r.decyzja + " [" + r.support + "]    Obiekty: ");
-            obiektyReguly.get(r).forEach(indeksObiektu -> System.out.print(indeksObiektu + 1 + " "));
-            licznikRegul++;
-        }
-
-
-        */
-
-
-
-        /*
-
-        //     TEST TWORZENIA REGUL - SPRAWDZENIE CZY TWORZY DOBRZE
-
-
-        List<Regula> regTest = new ArrayList<>();
-
-        for(int i=0; i<sys.length; i++){
-            for (Integer[] itr : kombInt) {
-                int[] intArray2 = Arrays.stream(itr).mapToInt(Integer::intValue).toArray();
-
-                Regula nowaRegula = tworzRegule(sys[i], intArray2);
-
-                regTest.add(nowaRegula);
-            }
-
-        }
-
-        for(Regula r : regTest){
-            System.out.println(r.deskryptor+" => "+r.decyzja);
-        }
-
-        */
-
-
-
-
 
 
 
@@ -239,12 +109,12 @@ public class Main {
                     if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {    // jesli kombinacja zawiera sie w wierszu to tworze regule
 
 
-                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);    // tworzenie reguly w tym miejscu zeby nie tworzyc regul jesli kombinacja bedzie zawierac sie w wierszu macierzy, zwiekszam przez to wydajnosc programu
+                        Regula reg = new Regula(sys[obiektNr], kombinacjeArr);    // tworzenie reguly w tym miejscu zeby nie tworzyc regul jesli kombinacja bedzie zawierac sie w wierszu macierzy, zwiekszam przez to wydajnosc programu
 
 
-                        if (!czyRegulaZawieraJednaZRegul(reg, regulyExhaustive) && !powtarzajacaSieRegula(regulyExhaustive, reg)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
+                        if (!reg.czyRegulaZawieraJednaZRegul(regulyExhaustive) && !reg.powtarzajacaSieRegula(regulyExhaustive)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
 
-                            List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
+                            List<Integer> supportObiekty = reg.obiektySupportu(sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
 
                             reg.support = supportObiekty.size();    // licze support na podstawie ilosci obiektow ktore spelniaja dana regule
                             regulyExhaustive.add(reg);   // dodaje regule do listy wynikowej
@@ -273,15 +143,7 @@ public class Main {
         int nrReguly = 0;
         for(Regula r : regulyExhaustive){
             System.out.print("R"+nrReguly+": ");
-            for(Map.Entry<Integer, String> desk : r.deskryptor.entrySet()) {
-                System.out.print("(a"+(desk.getKey()+1)+"="+desk.getValue()+") ");
-            }
-            if(r.support > 1) {
-                System.out.println("=> " + "(d=" + r.decyzja + ") [" + r.support + "]");
-            }
-            else{
-                System.out.println("=> " + "(d=" + r.decyzja + ")");
-            }
+            System.out.println(r.toString());
             nrReguly++;
         }
 
@@ -375,43 +237,11 @@ public class Main {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //      METODY DO 1 ALGORYTMU
-
-
-    public static List<Integer> obiektySupportu(Regula r, String[][] system)
-    {
-        List<Integer> obiektyIdx = new ArrayList<>();
-        for (int i = 0; i < system.length; i++)
-        {
-            if (czyObiektSpelniaRegule(r, system[i]))
-                obiektyIdx.add(i);
-        }
-        return obiektyIdx;
-    }
-
-
-
     public static List<int[]> kombinuj(List<Integer> obiekt, int rzad){
-        List<List<Integer>> kombList = new ArrayList<>();   // deklaracja listy do przechowania wynikow z dodatkowej funkcji generujacej kombinacje
+
+        List<List<Integer>> kombList = Generator.combination(obiekt).simple(rzad).stream().collect(Collectors.toList());     // deklaracja listy do przechowania wynikow z dodatkowej funkcji generujacej kombinacje,  funkcja generowania kombinacji bez powtorzen z dodatkowej biblioteki wrzucajaca wynik do listy
 
         List<int[]> outList = new ArrayList<>();    // deklaracja listy (tablic) wynikowej
-
-        Generator.combination(obiekt).simple(rzad).stream().forEach(kItem -> kombList.add(kItem));     // funkcja generowania kombinacji bez powtorzen z dodatkowej biblioteki
-
 
         for(List<Integer> kombItem : kombList){         // przelot dla kazdego elementu listy kombinacji
             int[] kombArr = new int[rzad];      // deklaracja tablicy do przechowywania kombinacji
@@ -424,140 +254,6 @@ public class Main {
     }
 
 
-
-    static List<String[]> kombinujS(List<String> obiekt, int rzad){
-        List<List<String>> kombList = new ArrayList<>();   // deklaracja listy do przechowania wynikow z dodatkowej funkcji generujacej kombinacje
-
-        List<String[]> outList = new ArrayList<>();    // deklaracja listy (tablic) wynikowej
-
-        Generator.combination(obiekt).simple(rzad).stream().forEach(kItem -> kombList.add(kItem));     // funkcja generowania kombinacji bez powtorzen z dodatkowej biblioteki
-
-
-        for(List<String> kombItem : kombList){         // przelot dla kazdego elementu listy kombinacji
-            String[] kombArr = new String[rzad];      // deklaracja tablicy do przechowywania kombinacji
-            for(int j=0;j<kombItem.size();j++){
-                kombArr[j] = kombItem.get(j);           // przepisywanie kombinacji z listy do tablicy
-            }
-            outList.add(kombArr);                       // dodawanie tablicy do wynikowej listy tablic
-        }
-        return outList;
-    }
-
-
-
-    public static boolean czyObiektSpelniaRegule(Regula reg, String[] obiekt){
-
-        for(Map.Entry<Integer, String> deskr : reg.deskryptor.entrySet()){     // foreach dla kazdego deskryptora
-            if(!deskr.getValue().equals(obiekt[deskr.getKey()])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    public static boolean czyNieSprzeczna(Regula reg, String[][] systemDec) {
-        for (String[] obiekt : systemDec) {
-            if (czyObiektSpelniaRegule(reg, obiekt) && !reg.decyzja.equals(obiekt[obiekt.length - 1]) ) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-
-    public static Regula tworzRegule(String[] obiekt, int[] kombinacja){
-        Regula r = new Regula();
-        r.decyzja = obiekt[obiekt.length - 1];
-        for(int nrAtrybutu : kombinacja){
-            String wartoscAtrybutu = obiekt[nrAtrybutu];   // korekta -1 zeby zgadzaly sie indeksy
-            r.deskryptor.put(nrAtrybutu, wartoscAtrybutu);
-        }
-        return r;
-    }
-
-
-
-
-
-    public static List<List<Integer>> Kombinacja(List<Integer> strings) {
-        if (strings.size() > 1) {
-            List<List<Integer>> result = new ArrayList<>();
-
-            for (Integer str : strings) {
-                List<Integer> subStrings = new ArrayList<>(strings);
-                subStrings.remove(str);
-
-                result.add(new ArrayList<Integer>(Arrays.asList(str)));
-
-                for (List<Integer> combinations : Kombinacja(subStrings)) {
-                    combinations.add(str);
-                    result.add(combinations);
-                }
-            }
-
-            return result;
-        } else {
-            List<List<Integer>> result = new ArrayList<>();
-            result.add(new ArrayList<Integer>(strings));
-            return result;
-        }
-    }
-
-
-
-
-    public static List<List<String>> KombinacjaString(List<String> strings) {
-        if (strings.size() > 1) {
-            List<List<String>> result = new ArrayList<List<String>>();
-
-            for (String str : strings) {
-                List<String> subStrings = new ArrayList<String>(strings);
-                subStrings.remove(str);
-
-                result.add(new ArrayList<String>(Arrays.asList(str)));
-
-                for (List<String> combinations : KombinacjaString(subStrings)) {
-                    combinations.add(str);
-                    result.add(combinations);
-                }
-            }
-
-            return result;
-        } else {
-            List<List<String>> result = new ArrayList<List<String>>();
-            result.add(new ArrayList<String>(strings));
-            return result;
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //      METODY DO 2 ALGORYTMU
 
     public static int[] tworzKomorke(String[] ob1, String[] ob2){
         List<Integer> komorka = new ArrayList<>();
@@ -588,6 +284,7 @@ public class Main {
     }
 
 
+
     public static Boolean czyKombinacjaZawieraSieWKomorce(int[] kombinacja, int[] komorka){
         List<Integer> komorkaList = new ArrayList<>();
         for (int index = 0; index < komorka.length; index++) komorkaList.add(komorka[index]);        //  konwercja na liste bo java nie zawiera wbudowanej metody contains dla tablicy
@@ -600,6 +297,8 @@ public class Main {
         return true;
     }
 
+
+
     public static Boolean czyKombinacjaZawieraSieWWierszu(int[] kombinacja, int[][] wiersz){
         for(int komorka[] : wiersz){
             if(czyKombinacjaZawieraSieWKomorce(kombinacja, komorka)){
@@ -609,41 +308,9 @@ public class Main {
         return false;
     }
 
-    public static Boolean czyRegulaZawieraRegule(Regula rWyzszegoRzedu, Regula rNizszegoRzedu){
-        int licznik = 0;
-
-        for(Map.Entry<Integer, String> deskr : rNizszegoRzedu.deskryptor.entrySet()){     // foreach kazdego deskryptora dla rNizszegoRzedu
-            if(rNizszegoRzedu.deskryptor.size() < rWyzszegoRzedu.deskryptor.size()) {
-                if (rWyzszegoRzedu.deskryptor.entrySet().contains(deskr) && rWyzszegoRzedu.decyzja.equals(rNizszegoRzedu.decyzja)) {
-                    licznik++;   // liczenie ile deskryptorow sie zgadza
-                }
-            }
-        }
-
-        if(licznik>=rNizszegoRzedu.deskryptor.size()) return true;     // jesli wszystkie reguly z zestawu deskryptorow sie zgadzaja
-        else return false;
-    }
-
-    public static Boolean czyRegulaZawieraJednaZRegul(Regula rWyzszegoRzedu, List<Regula> listaRegulNizszegoRzedu){
-        for(Regula rNizszegoRzedu : listaRegulNizszegoRzedu) {
-            if (rNizszegoRzedu.deskryptor.size() > 1) {  // sprawdzenie czy rzad jest wiekszy od 1 (nie mozna brac pod uwage deskryptorow 1 rzedu)
-                if (czyRegulaZawieraRegule(rWyzszegoRzedu, rNizszegoRzedu)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
 
-    public static Boolean powtarzajacaSieRegula(List<Regula> tymczasowaListaRegul, Regula regula){
-        for(Regula r : tymczasowaListaRegul){
-            if(r.deskryptor.equals(regula.deskryptor) && r.decyzja.equals(regula.decyzja)){   // jesli na liscie istnieje regula o takich samych deskryptorach i takiej samej decyzji to zwracam true
-                return true;
-            }
-        }
-        return false;
-    }
+
 
 
 
