@@ -217,11 +217,11 @@ public class Main {
             for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
 
 
+
                 List<Integer> listaObiektow = new ArrayList<>();    // tworzenie listy obiektow do kombinacji
                 for (int i = 0; i < sys[0].length - 1; i++) {
                     listaObiektow.add(i);
                 }
-
 
                 // [[], [5], [], [5], [], [5], [], [4]]
 
@@ -239,15 +239,15 @@ public class Main {
                     if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {    // jesli kombinacja zawiera sie w wierszu to tworze regule
 
 
-                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
+                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);    // tworzenie reguly w tym miejscu zeby nie tworzyc regul jesli kombinacja bedzie zawierac sie w wierszu macierzy, zwiekszam przez to wydajnosc programu
 
 
                         if (!czyRegulaZawieraJednaZRegul(reg, regulyExhaustive) && !powtarzajacaSieRegula(regulyExhaustive, reg)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
 
                             List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
 
-                            reg.support = supportObiekty.size();
-                            regulyExhaustive.add(reg);
+                            reg.support = supportObiekty.size();    // licze support na podstawie ilosci obiektow ktore spelniaja dana regule
+                            regulyExhaustive.add(reg);   // dodaje regule do listy wynikowej
 
                             if(rzad == 0){   // dla rzedu 1 eliminuje z rozwazan atrybuty na dla odpowiednich obiektow
                                 for(Integer obiekt : supportObiekty){ // kazdy obiekt z listy obiektow supportu
@@ -351,7 +351,7 @@ public class Main {
 
 
 
-        //     SPRAWDZANIE CZY KOMBINACJA ZAWIERA SIE W KOMORCE
+        //     SPRAWDZANIE CZY KOMBINACJA ZAWIERA SIE W KOMORCE / WIERSZU
 
         int[][] wiersz =   {
                                 {1,2,3,6},
@@ -448,7 +448,7 @@ public class Main {
     public static boolean czyObiektSpelniaRegule(Regula reg, String[] obiekt){
 
         for(Map.Entry<Integer, String> deskr : reg.deskryptor.entrySet()){     // foreach dla kazdego deskryptora
-            if(!deskr.getValue().equals(obiekt[deskr.getKey()])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false   // korekcja
+            if(!deskr.getValue().equals(obiekt[deskr.getKey()])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false
                 return false;
             }
         }
@@ -638,7 +638,7 @@ public class Main {
 
     public static Boolean powtarzajacaSieRegula(List<Regula> tymczasowaListaRegul, Regula regula){
         for(Regula r : tymczasowaListaRegul){
-            if(r.deskryptor.equals(regula.deskryptor) && r.decyzja.equals(regula.decyzja)){
+            if(r.deskryptor.equals(regula.deskryptor) && r.decyzja.equals(regula.decyzja)){   // jesli na liscie istnieje regula o takich samych deskryptorach i takiej samej decyzji to zwracam true
                 return true;
             }
         }
@@ -646,17 +646,19 @@ public class Main {
     }
 
 
-    public static int liczSupport(Regula r, String[][] system){
-        r.support = 0;
-        for(int i = 0; i<system.length; i++){
-            if(czyObiektSpelniaRegule(r,system[i])){
-                r.support++;
-            }
-        }
-        return r.support;
-    }
 
-    //       METODT UNIWERSALNE
+
+
+
+
+
+
+
+
+
+
+
+    //       METODY UNIWERSALNE
 
     public static String[][] readFile(String src, int rows, int cols) throws FileNotFoundException {
         File plik1 = new File(src);
