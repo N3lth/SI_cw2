@@ -70,10 +70,10 @@ public class Main {
 
                         // wszystkieReguly.add(reg);     //  lista pomocnicza ze wszystkimi regulami do sprawdzenia dzialania programu
 
-                        if (czyNieSprzeczna(reg, sys)) {     // jesli regula jest niesprzeczna
+                        if (reg.czyNieSprzeczna(sys)) {     // jesli regula jest niesprzeczna
 
 
-                            List<Integer> supportObiekty = obiektySupportu(reg, sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
+                            List<Integer> supportObiekty = reg.obiektySupportu(sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
                             obiektyWyeliminowane.addAll(supportObiekty);     // lista ze wszystkimi obiektami wyeliminowanymi z rozwazan
 
 
