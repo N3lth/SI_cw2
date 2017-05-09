@@ -120,15 +120,7 @@ public class Main {
         int licznikRegul = 1;
         for (Regula r : utworzoneReguly) {
             System.out.print("\nR" + licznikRegul + ": ");
-            for(int key : r.deskryptor.keySet()){
-                System.out.print("(a"+key+"="+r.deskryptor.get(key)+") ");
-            }
-            if(r.support > 1) {
-                System.out.print("=> d=" + r.decyzja + " [" + r.support + "]    Obiekty: ");
-            }
-            else{
-                System.out.print("=> d=" + r.decyzja + "    Obiekty: ");
-            }
+            System.out.print(r.toString());
             obiektyReguly.get(r).forEach(indeksObiektu -> System.out.print(indeksObiektu + 1 + " "));
             licznikRegul++;
         }
