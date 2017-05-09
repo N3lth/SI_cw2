@@ -66,7 +66,7 @@ public class Main {
                     for (int[] kombinacjeArr : kombinacjeWszystkie) {
 
 
-                        Regula reg = tworzRegule(sys[obiektNr], kombinacjeArr);
+                        Regula reg = new Regula(sys[obiektNr], kombinacjeArr);
 
                         // wszystkieReguly.add(reg);     //  lista pomocnicza ze wszystkimi regulami do sprawdzenia dzialania programu
 
@@ -242,15 +242,15 @@ public class Main {
 
 
 
-    public static Regula tworzRegule(String[] obiekt, int[] kombinacja){
-        Regula r = new Regula();
-        r.decyzja = obiekt[obiekt.length - 1];
-        for(int nrAtrybutu : kombinacja){
-            String wartoscAtrybutu = obiekt[nrAtrybutu - 1];   // korekta -1 zeby zgadzaly sie indeksy
-            r.deskryptor.put(nrAtrybutu, wartoscAtrybutu);
-        }
-        return r;
-    }
+//    public static Regula tworzRegule(String[] obiekt, int[] kombinacja){
+//        Regula r = new Regula();
+//        r.decyzja = obiekt[obiekt.length - 1];
+//        for(int nrAtrybutu : kombinacja){
+//            String wartoscAtrybutu = obiekt[nrAtrybutu - 1];   // korekta -1 zeby zgadzaly sie indeksy
+//            r.deskryptor.put(nrAtrybutu, wartoscAtrybutu);
+//        }
+//        return r;
+//    }
 
 
 

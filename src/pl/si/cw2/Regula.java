@@ -10,13 +10,13 @@ public class Regula {
 
 
     public Regula (String[] obiekt, int[] kombinacja){
-//        Regula r = new Regula();
+
         decyzja = obiekt[obiekt.length - 1];
         for(int nrAtrybutu : kombinacja){
             String wartoscAtrybutu = obiekt[nrAtrybutu - 1];   // korekta -1 zeby zgadzaly sie indeksy
             deskryptor.put(nrAtrybutu, wartoscAtrybutu);
         }
-//        return r;
+
     }
 
 
