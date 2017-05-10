@@ -76,163 +76,111 @@ public class Main {
 
 
 
-        List<Regula> regulyExhaustive = new ArrayList<>();
-        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
+//        List<Regula> regulyExhaustive = new ArrayList<>();
+//        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
+//
+//        Map<Integer, Integer> wyeliminowaneAtrybuty = new HashMap<>();
+//
+//
+//        for(int rzad = 0; rzad < sys[0].length - 1; rzad++) {
+//
+//            for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
+//
+//
+//
+//                List<Integer> listaObiektow = new ArrayList<>();    // tworzenie listy obiektow do kombinacji
+//                for (int i = 0; i < sys[0].length - 1; i++) {
+//                    listaObiektow.add(i);
+//                }
+//
+//                // [[], [5], [], [5], [], [5], [], [4]]
+//
+//                if(rzad > 0){                                       // jesli rzad wiekszy od 1 to eliminuje z listy obiektow do kombinacji (uzytych w macierzy) odpowiednie atrybuty
+//                    if(wyeliminowaneAtrybuty.get(obiektNr) != null){
+//                        listaObiektow.remove(wyeliminowaneAtrybuty.get(obiektNr));
+//                    }
+//                }
+//
+//                List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad+1);
+//
+//                for (int[] kombinacjeArr : kombinacjeWszystkie) {
+//
+//
+//                    if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {    // jesli kombinacja zawiera sie w wierszu to tworze regule
+//
+//
+//                        Regula reg = new Regula(sys[obiektNr], kombinacjeArr);    // tworzenie reguly w tym miejscu zeby nie tworzyc regul jesli kombinacja bedzie zawierac sie w wierszu macierzy, zwiekszam przez to wydajnosc programu
+//
+//
+//                        if (!reg.czyRegulaZawieraJednaZRegul(regulyExhaustive) && !reg.powtarzajacaSieRegula(regulyExhaustive)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
+//
+//                            List<Integer> supportObiekty = reg.obiektySupportu(sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
+//
+//                            reg.support = supportObiekty.size();    // licze support na podstawie ilosci obiektow ktore spelniaja dana regule
+//                            regulyExhaustive.add(reg);   // dodaje regule do listy wynikowej
+//
+//                            if(rzad == 0){   // dla rzedu 1 eliminuje z rozwazan atrybuty na dla odpowiednich obiektow
+//                                for(Integer obiekt : supportObiekty){ // kazdy obiekt z listy obiektow supportu
+//                                    for(Integer atrybut : reg.deskryptor.keySet())  // kazdy atrybut z zestawu artybutow (kluczy) reguly
+//                                        wyeliminowaneAtrybuty.put(obiekt, atrybut);
+//                                }
+//
+//                            }
+//
+//                        }
+//
+//
+//                    }
+//                }
+//            }
+//        }
 
-        Map<Integer, Integer> wyeliminowaneAtrybuty = new HashMap<>();
-
-
-        for(int rzad = 0; rzad < sys[0].length - 1; rzad++) {
-
-            for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
 
 
 
-                List<Integer> listaObiektow = new ArrayList<>();    // tworzenie listy obiektow do kombinacji
-                for (int i = 0; i < sys[0].length - 1; i++) {
-                    listaObiektow.add(i);
-                }
+//        System.out.println("\n\nReguly algorytmu Exhaustive:\n");
+//
+//        int nrReguly = 0;
+//        for(Regula r : regulyExhaustive){
+//            System.out.print("R"+nrReguly+": ");
+//            System.out.println(r.toString());
+//            nrReguly++;
+//        }
 
-                // [[], [5], [], [5], [], [5], [], [4]]
-
-                if(rzad > 0){                                       // jesli rzad wiekszy od 1 to eliminuje z listy obiektow do kombinacji (uzytych w macierzy) odpowiednie atrybuty
-                    if(wyeliminowaneAtrybuty.get(obiektNr) != null){
-                        listaObiektow.remove(wyeliminowaneAtrybuty.get(obiektNr));
-                    }
-                }
-
-                List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad+1);
-
-                for (int[] kombinacjeArr : kombinacjeWszystkie) {
-
-
-                    if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {    // jesli kombinacja zawiera sie w wierszu to tworze regule
-
-
-                        Regula reg = new Regula(sys[obiektNr], kombinacjeArr);    // tworzenie reguly w tym miejscu zeby nie tworzyc regul jesli kombinacja bedzie zawierac sie w wierszu macierzy, zwiekszam przez to wydajnosc programu
-
-
-                        if (!reg.czyRegulaZawieraJednaZRegul(regulyExhaustive) && !reg.powtarzajacaSieRegula(regulyExhaustive)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
-
-                            List<Integer> supportObiekty = reg.obiektySupportu(sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
-
-                            reg.support = supportObiekty.size();    // licze support na podstawie ilosci obiektow ktore spelniaja dana regule
-                            regulyExhaustive.add(reg);   // dodaje regule do listy wynikowej
-
-                            if(rzad == 0){   // dla rzedu 1 eliminuje z rozwazan atrybuty na dla odpowiednich obiektow
-                                for(Integer obiekt : supportObiekty){ // kazdy obiekt z listy obiektow supportu
-                                    for(Integer atrybut : reg.deskryptor.keySet())  // kazdy atrybut z zestawu artybutow (kluczy) reguly
-                                        wyeliminowaneAtrybuty.put(obiekt, atrybut);
-                                }
-
-                            }
-
-                        }
-
-
-                    }
-                }
-            }
+        for(String[] ob : zwrocKoncept(sys, "1")){
+            Arrays.stream(ob).forEach(el -> System.out.print(el+" "));
+            System.out.println("");
         }
 
+        //zwrocKoncept(sys,"0");
 
 
 
-        System.out.println("\n\nReguly algorytmu Exhaustive:\n");
-
-        int nrReguly = 0;
-        for(Regula r : regulyExhaustive){
-            System.out.print("R"+nrReguly+": ");
-            System.out.println(r.toString());
-            nrReguly++;
-        }
-
-
-
-
-
-
-
-
-
-
-/*
-
-        //      TEST ZAWIERANIA REGUL
-
-        Regula r1 = new Regula();
-        Regula r2 = new Regula();
-        Regula r1a = new Regula();
-        Regula r2a = new Regula();
-        Regula r1b = new Regula();
-        Regula r2b = new Regula();
-        Regula r1c = new Regula();
-        Regula r2c = new Regula();
-        Regula r1d = new Regula();
-        Regula r2d = new Regula();
-        Regula r1e = new Regula();
-        Regula r2e = new Regula();
-
-
-
-        //    (a3 = 1) & (a4 = 1) & (a5 = 3) => (d = 1)
-        r1.deskryptor.put(3,"1");
-        r1.deskryptor.put(4,"1");
-        r1.deskryptor.put(5,"1");
-        r1.decyzja = "1";
-
-        // [1=1, 2=1, 4=2]
-
-        r2.deskryptor.put(1,"1");
-        r2.deskryptor.put(2,"1"); //
-        r2.deskryptor.put(4,"2"); //
-        r2.decyzja = "0";
-
-        r2a.deskryptor.put(2,"1");
-        r2a.deskryptor.put(4,"2");
-        //r2a.deskryptor.put(5,"0");
-        r2a.decyzja = "0";
-
-
-        r1a.deskryptor.put(4,"3");
-        r1a.deskryptor.put(6,"1");
-        r1a.decyzja = "0";
-
-        r1b.deskryptor.put(3,"1");
-        r1b.deskryptor.put(4,"1");
-        r1b.decyzja = "1";                // decyzja jest tez wazna
-
-        List<Regula> tst = new ArrayList<>();
-        tst.add(r1a);
-        tst.add(r2a);
-
-        System.out.println(czyRegulaZawieraJednaZRegul(r2,tst));
-
-
-
-
-
-
-        //     SPRAWDZANIE CZY KOMBINACJA ZAWIERA SIE W KOMORCE / WIERSZU
-
-        int[][] wiersz =   {
-                                {1,2,3,6},
-                                {1,2,3},
-                                {1,2,3,4},
-                                {1,2,5},
-                                {1,2,6}
-                            };
-
-        int[] kombinacja = {1,2};
-
-        //System.out.println(czyKombinacjaZawieraSieWWierszu(kombinacja, wiersz));
-
-*/
 
     }
 
 
 
+    public static String[][] zwrocKoncept(String[][] systemDec, String decyzja){
+
+        List<String[]> konceptList = new ArrayList<>();
+
+        for(int i = 0; i<systemDec.length; i++){
+
+                if(systemDec[i][systemDec[i].length-1].equals(decyzja)){    // sprawdzenie czy wartosc atrybutu decyzyjnego zgadza sie z podana decyzja
+
+                    konceptList.add(systemDec[i]);
+                }
+        }
+
+        String[][] koncept = new String[konceptList.size()][];
+        for(int i=0; i<konceptList.size(); i++){
+            koncept[i] = konceptList.get(i);
+        }
+
+        return koncept;
+
+    }
 
 
 
