@@ -398,7 +398,7 @@ public class Main {
         for(String[] obiekt : konceptZListy2){   // tutaj musze podac obiekty tylko z konceptu
             if(rWynikowa.czyObiektSpelniaRegule(obiekt)){
                 obiektySpelniajaceRegule.add(nrObiektu);
-                konceptLista.remove(nrObiektu);   // wywala index ot of bounds, poprawic
+                konceptLista.remove(obiekt);   // wywala index ot of bounds, poprawic
             }
             nrObiektu++;
         }
