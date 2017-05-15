@@ -39,7 +39,7 @@ public class Regula {
 
 
 
-    public List<Integer> obiektySupportu(String[][] system)
+    public List<Integer> obiektySpelniajaceRegule(String[][] system)     //   obiektySupportu
     {
         List<Integer> obiektyIdx = new ArrayList<>();
         for (int i = 0; i < system.length; i++)

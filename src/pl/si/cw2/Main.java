@@ -254,17 +254,30 @@ public class Main {
         listaAtrybutow.add(0);
         listaAtrybutow.add(1);
         listaAtrybutow.add(2);
-        //listaAtrybutow.add(3);
+        listaAtrybutow.add(3);
 
-        Deskryptor d1 = najczestszyDeskryptorAtrybutu(zwrocKoncept(sys, "1"), 3);
-        System.out.println("a" + (d1.nrAtrybutu+1) + " = " + d1.wartosc + ", czestosc: " + d1.czestosc);
+//        Deskryptor d1 = najczestszyDeskryptorAtrybutu(zwrocKoncept(sys, "1"), 3);
+//        System.out.println("a" + (d1.nrAtrybutu+1) + " = " + d1.wartosc + ", czestosc: " + d1.czestosc);
+
+        List<String> decyzjeKonceptu = new ArrayList<>();
+        decyzjeKonceptu.add("1");
+        decyzjeKonceptu.add("0");
+
+        String[][] testKoncept  = {
+                {"1","0","1","0","0"},
+                {"1","2","5","0","0"}
+        };
+        //for(String decyzjaKon : decyzjeKonceptu) {
+        String decyzjaKon = "1";
+        for (Regula r : regulyWynikowe(sys, decyzjaKon)) {
+                System.out.println(r.toString());
+            }
+        //}
 
 
-        for(Regula r : regulyWynikowe(sys)){
-            System.out.print(r.toString());
-        }
 
-//        Deskryptor d2 = najczestszyDeskryptor(zwrocKoncept(sys, "1"), listaAtrybutow);
+
+//        Deskryptor d2 = najczestszyDeskryptorZListyAtrybutow(testKoncept, listaAtrybutow);
 //        System.out.println("a" + (d2.nrAtrybutu+1) + " = " + d2.wartosc + ", czestosc: " + d2.czestosc);
 
 
@@ -321,10 +334,50 @@ public class Main {
     }
 
 
+    public static Deskryptor najczestszyDeskryptorZListyAtrybutow(String[][] sysk, List<Integer> listaNumerowAtrybutow){
 
-    public static List<Regula> regulyWynikowe(String[][] sysDec){
+        Deskryptor out = new Deskryptor();
 
-        String[][] koncept = zwrocKoncept(sysDec, "1");
+        List<Deskryptor> listaWszystkichDeskryptorow = new ArrayList<>();
+
+        for(Integer nrAtrybutu : listaNumerowAtrybutow){
+            Deskryptor d = najczestszyDeskryptorAtrybutu(sysk, nrAtrybutu);
+            listaWszystkichDeskryptorow.add(d);
+        }
+
+        // mam liste wszystkich deskryptorow dla poszczegolnych atrybutow, musze teraz porownac sobie ich czestosci i wybrac ten, ktory ma najwiskza czestosc w kolejnosci 1..n
+        int najwiekszaCzestosc = 0;
+        for(Deskryptor desk : listaWszystkichDeskryptorow){
+            if(desk.czestosc > najwiekszaCzestosc){
+                najwiekszaCzestosc = desk.czestosc;
+            }
+        }
+
+        for(Deskryptor desk : listaWszystkichDeskryptorow){
+            if(desk.czestosc == najwiekszaCzestosc){
+                out = desk;
+                break;
+            }
+        }
+
+        return out;
+    }
+
+
+
+    public static List<Regula> regulyWynikowe(String[][] sysDec, String decyzjaDlaKonceptu){
+
+        String[][] koncept = zwrocKoncept(sysDec, decyzjaDlaKonceptu);
+
+//        String[][] koncept = {
+//                {"1", "0", "1", "0", "0"},
+//                {"1", "2", "5", "0", "0"}
+//        };
+
+
+//                String[][] koncept = {
+//                {"1", "2", "1", "1", "0"}
+//        };
 
         // zamieniam koncept na List<String[]>
 
@@ -336,81 +389,135 @@ public class Main {
 
         List<Regula> regulyWynikoweWszystkie = new ArrayList<>();
 
-
-        // ta metoda ma mi znalezc z lisyt podanych deskryptorow obiekty, ktore maja takie deskryptory z dana decyzja
-
-
-        // dajemy foreach zeby przepisac wszystkie deskryptory do regule, potem sprawdzamy czy obiekt spelnia regule i dostaniemy liste obiektow ktore ja spelniaja
-
-        Regula rWynikowa = new Regula();
-
-        rWynikowa.decyzja = koncept[0][koncept.length+1];
-
         List<Integer> listaAtrybutow = new ArrayList<>();
         listaAtrybutow.add(0);
         listaAtrybutow.add(1);
         listaAtrybutow.add(2);
         listaAtrybutow.add(3);
 
-
-        // trzeba uwzglednic wyeliminowane obiekty po utworeniu reguly
-
-        // sprawdzenie czy obiekt zawiera sie na konceptlista
-
-        for(Integer nrAtrybutu : listaAtrybutow){
-            Regula rTymczasowa = new Regula();
-            rTymczasowa.decyzja = koncept[0][koncept.length+1];
-
-            // moment kiedy musimy wywalic z listy obiekty ktore spelniaja regule
+        // petla while dopoki koncept sie nie wyzeruje
 
 
-            // konwertuje liste konceptu na tablice - do poprawki zeby metoda najczestszyDeskryptorAtrybutu przyjmowala liste
-            String[][] konceptZListy = new String[konceptLista.size()][];
-            for(int obIdx = 0; obIdx < konceptLista.size(); obIdx++){
-                konceptZListy[obIdx] = konceptLista.get(obIdx);
+        // ta metoda ma mi znalezc z lisyt podanych deskryptorow obiekty, ktore maja takie deskryptory z dana decyzja
+
+
+        // dajemy foreach zeby przepisac wszystkie deskryptory do regule, potem sprawdzamy czy obiekt spelnia regule i dostaniemy liste obiektow ktore ja spelniaja
+
+
+        while(konceptLista.size() > 0) {
+            Regula rWynikowa = new Regula();
+
+            rWynikowa.decyzja = koncept[0][koncept.length + 1];
+
+
+            // trzeba uwzglednic wyeliminowane obiekty po utworeniu reguly
+
+            // sprawdzenie czy obiekt zawiera sie na konceptlista
+
+            List<Integer> atrybutydoNajczestszegoDeskryptora = new ArrayList<>();
+            List<Integer> atrybutyWykluczone = new ArrayList<>();
+            int atrybutWykluczony = 0;
+            atrybutydoNajczestszegoDeskryptora.addAll(listaAtrybutow);
+
+            for (Integer nrAtrybutu : listaAtrybutow) {
+                if(nrAtrybutu >= atrybutWykluczony && atrybutWykluczony != koncept[0].length-2) {
+                    Regula rTymczasowa = new Regula();
+                    rTymczasowa.decyzja = koncept[0][koncept.length + 1];
+
+                    // moment kiedy musimy wywalic z listy obiekty ktore spelniaja regule
+
+
+                    // konwertuje liste konceptu na tablice - do poprawki zeby metoda najczestszyDeskryptorAtrybutu przyjmowala liste
+                    List<Integer> obiektySpelniajaceReg = rWynikowa.obiektySpelniajaceRegule(koncept);
+                    // sprawdzenie rozmiaryw list, jesli wielkosc obiektySpelniajaceReg < konceptLista to ustaw wielkosc konceptZListy na obiektyspelniajaceRegule.size()
+                    int konceptZListySize = 0;
+                    if (obiektySpelniajaceReg.size() < konceptLista.size()) {
+                        konceptZListySize = obiektySpelniajaceReg.size();
+                    } else {
+                        konceptZListySize = konceptLista.size();
+                    }
+//                    if(konceptZListySize == 1) konceptZListySize++;
+                    //   sprawdzic czemu dostaje konceptZListy jako null przy obiekcie 2 atrybut 3(4) dla caleko konceptu z decjzja 1
+                    String[][] konceptZListy = new String[konceptZListySize][];
+                    int iterator = 0;
+                    for (int obIdx = 0; obIdx < konceptLista.size(); obIdx++) {
+                        if (obiektySpelniajaceReg.contains(obIdx)) {
+                            konceptZListy[iterator] = konceptLista.get(obIdx);    // robi sie dziura, trzeba wypelniac tablice po kolei a nie numerami indeksow
+                            iterator++;
+                        }
+                    }
+
+
+                    //  dorobic sprawdzenie ktore obiekty spelniaja caly deskryptor i dopiero wtedy dla tych obiektow sprawdzac najczestszy
+
+
+                    // tutaj sprawdzic najczestszy deskryptor ale Z LISTY ATRYBUTOW
+
+                    // sprawdzic czemu dostaje konceptZListy jako null przy obiekcie 2 atrybut 3(4) dla caleko konceptu z decjzja 1
+                    Deskryptor d = najczestszyDeskryptorZListyAtrybutow(konceptZListy, atrybutydoNajczestszegoDeskryptora);
+                    rTymczasowa.deskryptor.put(d.nrAtrybutu, d.wartosc);
+                    atrybutWykluczony = d.nrAtrybutu;
+
+
+                    //rWynikowa.deskryptor.put(d.nrAtrybutu, d.wartosc);
+
+                    // jak regula niesprzeczn to przerywam algorytm i zapisuje wynikowa regule
+
+                    // jak mam utworzona regule to sprawdzamjej obiekty i wywalam z konceptu     to jest po petli while
+
+                    if (!rWynikowa.czyNieSprzeczna(sysDec)) {     // jesli regula jest sprzeczna to przerywam petle while
+                        rWynikowa.deskryptor.put(d.nrAtrybutu, d.wartosc);
+                    }
+
+//                    listaAtrybutow.remove(atrybutWykluczony);
+
+                    // trzeba sprawdzic ktory numer atrybutu jest wywalany, podac mu numer d.nratrybutu - 1 i wywalic wszystkie ktore sa mniejsze od jego wartosci
+
+                    // inaczej: trzeba wywalic numery atrybutow z listy ktore sa mniejsze od wartosci d.nratrybutu
+
+//                for(int nrAtrybutuDowywalenia : listaAtrybutow){
+//                    if(d.nrAtrybutu > nrAtrybutuDowywalenia) {
+//                        atrybutydoNajczestszegoDeskryptora.remove(nrAtrybutuDowywalenia);
+//                    }
+//                }
+
+                    atrybutydoNajczestszegoDeskryptora.remove(nrAtrybutu);
+
+//                atrybutyWykluczone.add(d.nrAtrybutu);
+                }
+            }
+
+            // w tym momencie dostaje regule ze wszystkimi deskryptorami z listy atrybutow
+
+            // teraz musze pobrac obiekty ( [] ) ktore spelniaja ta regule
+
+            // robie petle dla wszystkich numerow obiektow z konceptu i uzywam funkcji czyObiektSpelniaRegule i te obiekty ktore spelniaja dodaje je do listy
+
+            List<Integer> obiektySpelniajaceRegule = new ArrayList<>();      /////      mzna zastapic metoda obiektySupportu
+
+            String[][] konceptZListy2 = new String[konceptLista.size()][];   // tez do poprawki, ale upelnic sie
+            for (int obIdx = 0; obIdx < konceptLista.size(); obIdx++) {
+                konceptZListy2[obIdx] = konceptLista.get(obIdx);
             }
 
 
-            Deskryptor d = najczestszyDeskryptorAtrybutu(konceptZListy, nrAtrybutu);
-            rTymczasowa.deskryptor.put(d.nrAtrybutu, d.wartosc);
-
-            if(!rTymczasowa.czyNieSprzeczna(sysDec)){     // jesli regula jest sprzeczna to dodaje deskryptor do wynikowej
-                rWynikowa.deskryptor.put(d.nrAtrybutu, d.wartosc);
+            int nrObiektu = 0;
+            for (String[] obiekt : konceptZListy2) {   // tutaj musze podac obiekty tylko z konceptu
+                if (rWynikowa.czyObiektSpelniaRegule(obiekt)) {
+                    obiektySpelniajaceRegule.add(nrObiektu);
+                    konceptLista.remove(obiekt);   // wywala index ot of bounds, poprawic
+                }
+                nrObiektu++;
             }
 
+
+            // teraz jako wynik chcialbym miec regule i obiekty ktore ja spelniaja        albo       regule z policzonym supportem
+
+            rWynikowa.support = obiektySpelniajaceRegule.size();
+
+            regulyWynikoweWszystkie.add(rWynikowa);
+
         }
-
-        // w tym momencie dostaje regule ze wszystkimi deskryptorami z listy atrybutow
-
-        // teraz musze pobrac obiekty ( [] ) ktore spelniaja ta regule
-
-        // robie petle dla wszystkich numerow obiektow z konceptu i uzywam funkcji czyObiektSpelniaRegule i te obiekty ktore spelniaja dodaje je do listy
-
-        List<Integer> obiektySpelniajaceRegule = new ArrayList<>();      /////      mzna zastapic metoda obiektySupportu
-
-        String[][] konceptZListy2 = new String[konceptLista.size()][];   // tez do poprawki, ale upelnic sie
-        for(int obIdx = 0; obIdx < konceptLista.size(); obIdx++){
-            konceptZListy2[obIdx] = konceptLista.get(obIdx);
-        }
-
-
-        int nrObiektu = 0;
-        for(String[] obiekt : konceptZListy2){   // tutaj musze podac obiekty tylko z konceptu
-            if(rWynikowa.czyObiektSpelniaRegule(obiekt)){
-                obiektySpelniajaceRegule.add(nrObiektu);
-                konceptLista.remove(obiekt);   // wywala index ot of bounds, poprawic
-            }
-            nrObiektu++;
-        }
-
-
-
-
-        // teraz jako wynik chcialbym miec regule i obiekty ktore ja spelniaja        albo       regule z policzonym supportem
-
-        rWynikowa.support = obiektySpelniajaceRegule.size();
-
-        regulyWynikoweWszystkie.add(rWynikowa);
 
         return regulyWynikoweWszystkie;
 
