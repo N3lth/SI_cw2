@@ -8,7 +8,8 @@ public class Regula {
     public String decyzja;
     public int support = 0;
 
-
+    public Regula() {
+    }
 
     public String toString(){
         String out = "";
@@ -55,6 +56,15 @@ public class Regula {
 
         for(Map.Entry<Integer, String> deskr : deskryptor.entrySet()){     // foreach dla kazdego deskryptora
             if(!deskr.getValue().equals(obiekt[deskr.getKey()])){    //   jak nie zgadzaja sie wartosci atrybutow to zwroc false    +  korekta -1 dla coveringu
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean czyNieSprzeczna(String[][] systemDec) {
+        for (String[] obiekt : systemDec) {
+            if (czyObiektSpelniaRegule(obiekt) && !decyzja.equals(obiekt[obiekt.length - 1]) ) {
                 return false;
             }
         }
