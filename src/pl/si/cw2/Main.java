@@ -267,12 +267,12 @@ public class Main {
                 {"1","0","1","0","0"},
                 {"1","2","5","0","0"}
         };
-        //for(String decyzjaKon : decyzjeKonceptu) {
-        String decyzjaKon = "1";
+        for(String decyzjaKon : decyzjeKonceptu) {
+//        String decyzjaKon = "1";
         for (Regula r : regulyWynikowe(sys, decyzjaKon)) {
                 System.out.println(r.toString());
             }
-        //}
+        }
 
 
 
@@ -428,7 +428,18 @@ public class Main {
 
 
                     // konwertuje liste konceptu na tablice - do poprawki zeby metoda najczestszyDeskryptorAtrybutu przyjmowala liste
+
+                    // przy obiekcie 2 dla konceptu z decyzja "1" przy atrybucie dostaje obiekt o indeksie 1 (ob 2) a powinien dostac indeks obiektu 0 bo rozmiar tablicy koncept z listy jest 1 (tylko indeks 0 ma a powinna miec indeks 1)
                     List<Integer> obiektySpelniajaceReg = rWynikowa.obiektySpelniajaceRegule(koncept);
+                    int iteratorOdZera = 0;
+                    for(Integer obiektSpelniajacyRegule : obiektySpelniajaceReg){
+                        if(obiektSpelniajacyRegule > iteratorOdZera){
+                            // robie swapa zeby numer obiektu byl iterowany od zera, poprawic zeby szlo w odpowiedniej kolejnosci bo sie wysypie dla innej kolejnosci obiektow z niewlasciwymi indeksami
+                            obiektySpelniajaceReg.remove(obiektSpelniajacyRegule);
+                            obiektySpelniajaceReg.add(iteratorOdZera);
+                        }
+                        iteratorOdZera++;
+                    }
                     // sprawdzenie rozmiaryw list, jesli wielkosc obiektySpelniajaceReg < konceptLista to ustaw wielkosc konceptZListy na obiektyspelniajaceRegule.size()
                     int konceptZListySize = 0;
                     if (obiektySpelniajaceReg.size() < konceptLista.size()) {
@@ -438,9 +449,12 @@ public class Main {
                     }
 //                    if(konceptZListySize == 1) konceptZListySize++;
                     //   sprawdzic czemu dostaje konceptZListy jako null przy obiekcie 2 atrybut 3(4) dla caleko konceptu z decjzja 1
+
+                    // tutaj lepiej oerowac na liscie a potem ja przekowertowac na tablice, bez kombinacji w tablicy tylko obliczenia robic na liscie
                     String[][] konceptZListy = new String[konceptZListySize][];
                     int iterator = 0;
                     for (int obIdx = 0; obIdx < konceptLista.size(); obIdx++) {
+                        // obiekty spelniajace regule ma wartosc 1 zamiast 0
                         if (obiektySpelniajaceReg.contains(obIdx)) {
                             konceptZListy[iterator] = konceptLista.get(obIdx);    // robi sie dziura, trzeba wypelniac tablice po kolei a nie numerami indeksow
                             iterator++;
