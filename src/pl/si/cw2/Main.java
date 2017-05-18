@@ -39,7 +39,7 @@ public class Main {
 
         };
 
-        String[][] systemYoutube = {
+        String[][] systemLEMYoutube = {
                 {"1","2","3","4","1"},
                 {"1","2","1","1","1"},
                 {"1","2","3","4","1"},
@@ -48,245 +48,56 @@ public class Main {
                 {"1","2","5","0","0"}
         };
 
+        String[][] systemLEMPDF = {
+                {"2","6","1","2","3","1"},
+                {"1","1","1","3","2","1"},
+                {"2","1","1","2","3","1"},
+                {"4","1","3","1","2","1"},
+                {"3","5","2","1","3","2"},
+                {"3","1","3","1","1","2"},
+                {"1","1","1","3","1","2"}
+
+        };
+
         String[][] systemZPliku = readFile("SystemDecyzyjny.txt",8, 7);
 
-        String[][] sys = systemYoutube;     // wybor systemu
+        String[][] sys = systemLEMYoutube;     // wybor systemu
 
 
 
 
 
-        //      ALGORYTM 2
-
-        System.out.print("\n\n");
-        /*
-
-
-        //     SPRAWDZENIE CZY DOBRZE TWORZY MACIERZ   --   OK
-
-
-        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
-        for(int i=0; i<mn.length; i++){
-            for(int j=0; j<mn[i].length; j++){
-                System.out.println("ob"+(j+1)+"");
-                if(mn[i][j].length != 0){
-                    Arrays.stream(mn[i][j]).forEach(a -> System.out.print("a"+(a+1)+" "));
-                }
-                else System.out.print("    X");
-                System.out.println("\n\n");
-            }
-            System.out.println("-----------------------\n");
-        }
-
-        */
-
-
-
-
-
-
-
-//        List<Regula> regulyExhaustive = new ArrayList<>();
-//        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
-//
-//        Map<Integer, Integer> wyeliminowaneAtrybuty = new HashMap<>();
-//
-//
-//        for(int rzad = 0; rzad < sys[0].length - 1; rzad++) {
-//
-//            for (int obiektNr = 0; obiektNr < mn.length; obiektNr++) {
-//
-//
-//
-//                List<Integer> listaObiektow = new ArrayList<>();    // tworzenie listy obiektow do kombinacji
-//                for (int i = 0; i < sys[0].length - 1; i++) {
-//                    listaObiektow.add(i);
-//                }
-//
-//                // [[], [5], [], [5], [], [5], [], [4]]
-//
-//                if(rzad > 0){                                       // jesli rzad wiekszy od 1 to eliminuje z listy obiektow do kombinacji (uzytych w macierzy) odpowiednie atrybuty
-//                    if(wyeliminowaneAtrybuty.get(obiektNr) != null){
-//                        listaObiektow.remove(wyeliminowaneAtrybuty.get(obiektNr));
-//                    }
-//                }
-//
-//                List<int[]> kombinacjeWszystkie = kombinuj(listaObiektow, rzad+1);
-//
-//                for (int[] kombinacjeArr : kombinacjeWszystkie) {
-//
-//
-//                    if (!czyKombinacjaZawieraSieWWierszu(kombinacjeArr, mn[obiektNr])) {    // jesli kombinacja zawiera sie w wierszu to tworze regule
-//
-//
-//                        Regula reg = new Regula(sys[obiektNr], kombinacjeArr);    // tworzenie reguly w tym miejscu zeby nie tworzyc regul jesli kombinacja bedzie zawierac sie w wierszu macierzy, zwiekszam przez to wydajnosc programu
-//
-//
-//                        if (!reg.czyRegulaZawieraJednaZRegul(regulyExhaustive) && !reg.powtarzajacaSieRegula(regulyExhaustive)) {   // sprawdzam czy regula zawiera regule z listy i wyrzucam reguly ktore sie powtarzaja na liscie
-//
-//                            List<Integer> supportObiekty = reg.obiektySupportu(sys);     // lista z obiektami ktore spelniaja regule ktora aktualnie leci w petli, lista jest zerowana przy kazdym przelocie petli
-//
-//                            reg.support = supportObiekty.size();    // licze support na podstawie ilosci obiektow ktore spelniaja dana regule
-//                            regulyExhaustive.add(reg);   // dodaje regule do listy wynikowej
-//
-//                            if(rzad == 0){   // dla rzedu 1 eliminuje z rozwazan atrybuty na dla odpowiednich obiektow
-//                                for(Integer obiekt : supportObiekty){ // kazdy obiekt z listy obiektow supportu
-//                                    for(Integer atrybut : reg.deskryptor.keySet())  // kazdy atrybut z zestawu artybutow (kluczy) reguly
-//                                        wyeliminowaneAtrybuty.put(obiekt, atrybut);
-//                                }
-//
-//                            }
-//
-//                        }
-//
-//
-//                    }
-//                }
-//            }
-//        }
-
-
-
-
-//        System.out.println("\n\nReguly algorytmu Exhaustive:\n");
-//
-//        int nrReguly = 0;
-//        for(Regula r : regulyExhaustive){
-//            System.out.print("R"+nrReguly+": ");
-//            System.out.println(r.toString());
-//            nrReguly++;
-//        }
-
-//        for(String[] ob : zwrocKoncept(sys, "1")){
-//            Arrays.stream(ob).forEach(el -> System.out.print(el+" "));
-//            System.out.println("");
-//        }
-
-        // sprawdzenie ile razy wystepuje ta sama wartosc dla kolejnego atrybutu
-
-        List<List<Deskryptor>> listaObiektowDeskryptorow = new ArrayList<>();
-
-
-        String[][] koncept = zwrocKoncept(sys, "0");
-        //Map<Integer, Deskryptor> listaDeskrptorow = new HashMap<>();
-
-
-        //Deskryptor d = new Deskryptor();
-        for(int i=0; i<koncept.length; i++){ // przelatuje wszystkie obiekty
-            String[] obiekt = koncept[i];
-
-
-
-            List<Deskryptor> listaAtrybutow = new ArrayList<>();
-            for(int j = 0; j<obiekt.length; j++){   // przelatuje dla atrybutow
-                Deskryptor d = new Deskryptor();
-                d.nrAtrybutu = j;
-                d.wartosc = obiekt[j];
-//                d.czestosc++;
-                listaAtrybutow.add(d);
-            }
-
-
-            //listaAtrybutow.stream().forEach(at -> System.out.print(at.nrAtrybutu+"="+at.wartosc+"     "+at.czestosc+"\n"));
-            //System.out.println("\n\n");
-
-
-            listaObiektowDeskryptorow.add(listaAtrybutow);
-
-
-        }
-
-
-        //   biore sobie jeden caly obiekt i musze wzgledem niego sprawdzic sobie w petli czly system i policzyc ile razy wystepuje dany atrubyt
-
-
-//        List<Integer> obiektyIdx = new ArrayList<>();
-//        int nrObiektu = 0;
-////        for (int nrObiektu = 0; nrObiektu < koncept.length; nrObiektu++)
-////        {
-//        int nrObiektuWew = 0;
-//            for(String[] calySystem : sys){
-//                if (koncept[nrObiektu][3].equals(calySystem[3])) {
-//                    System.out.println("obiekt " +(nrObiektuWew+1));
-//                    obiektyIdx.add(nrObiektuWew);
-//                }
-//                nrObiektuWew++;
-//            }
-
-
-
-//        for(int i=0; i<koncept.length; i++) { // przelatuje wszystkie obiekty
-//            String[] obiekt = koncept[i];
-//
-//            List<Deskryptor> listaAtr = new ArrayList<>();
-//            listaAtr.addAll(listaObiektowDeskryptorow.get(i));
-//
-//            for(int j = 0; j<obiekt.length; j++) {   // przelatuje dla atrybutow
-//                if(listaAtr.get(j).nrAtrybutu == j && listaAtr.get(i).wartosc == obiekt[j]){
-//                    listaAtr.get(j).czestosc++;
-//                }
-//            }
-//        }
-//
-//        int it = 0;
-//        for(List<Deskryptor> deskryptory: listaObiektowDeskryptorow){
-//            System.out.println(it);
-//            for(Deskryptor d : deskryptory){
-//                System.out.println(d.nrAtrybutu+"="+d.wartosc+"     "+d.czestosc);
-//            }
-//            it++;
-//        }
-
-        //zwrocKoncept(sys,"0");
-
-
-//        for(Deskryptor d : liczCzestoscAtrybutu(zwrocKoncept(sys, "1"), 2)){
-////            Deskryptor d = new Deskryptor();
-////            for(Map.Entry<Integer, String> atrybut : desk.getKey().entrySet()){
-////                d.nrAtrybutu = atrybut.getKey();
-////                d.wartosc = atrybut.getValue();
-////                d.czestosc = desk.getValue();
-////            }
-//            System.out.println("nrAtrybutu: " + (d.nrAtrybutu+1) + ", Wartosc: " + d.wartosc + ", czestosc: " + d.czestosc);
-//        }
+        //      ALGORYTM 3
 
         List<Integer> listaAtrybutow = new ArrayList<>();
-        listaAtrybutow.add(0);
-        listaAtrybutow.add(1);
-        listaAtrybutow.add(2);
-        listaAtrybutow.add(3);
+//        listaAtrybutow.add(0);
+//        listaAtrybutow.add(1);
+//        listaAtrybutow.add(2);
+//        listaAtrybutow.add(3);
 
-//        Deskryptor d1 = najczestszyDeskryptorAtrybutu(zwrocKoncept(sys, "1"), 3);
-//        System.out.println("a" + (d1.nrAtrybutu+1) + " = " + d1.wartosc + ", czestosc: " + d1.czestosc);
+        Deskryptor d1 = najczestszyDeskryptorZListyAtrybutow(zwrocKoncept(sys, "1"), listaAtrybutow);
+        System.out.println("a" + (d1.nrAtrybutu+1) + " = " + d1.wartosc + ", czestosc: " + d1.czestosc);
 
         List<String> decyzjeKonceptu = new ArrayList<>();
         decyzjeKonceptu.add("1");
         decyzjeKonceptu.add("0");
 
-        String[][] testKoncept  = {
-                {"1","0","1","0","0"},
-                {"1","2","5","0","0"}
-        };
-        for(String decyzjaKon : decyzjeKonceptu) {
-//        String decyzjaKon = "1";
+//        String[][] testKoncept  = {
+//                {"1","0","1","0","0"},
+//                {"1","2","5","0","0"}
+//        };
+//        for(String decyzjaKon : decyzjeKonceptu) {
+        String decyzjaKon = "1";
         for (Regula r : regulyWynikowe(sys, decyzjaKon)) {
                 System.out.println(r.toString());
             }
-        }
+//        }
 
 
-
-
-//        Deskryptor d2 = najczestszyDeskryptorZListyAtrybutow(testKoncept, listaAtrybutow);
+//        Deskryptor d2 = najczestszyDeskryptorAtrybutu(zwrocKoncept(systemLEMYoutube,"1"), 2);
 //        System.out.println("a" + (d2.nrAtrybutu+1) + " = " + d2.wartosc + ", czestosc: " + d2.czestosc);
 
 
-//        for(Map.Entry<Integer, Deskryptor> deskryptorObiektu : liczCzestoscAtrybutu(zwrocKoncept(sys, "1"), 2).entrySet()){
-//            Deskryptor d1 = deskryptorObiektu.getValue();
-//            int nrOb = deskryptorObiektu.getKey();
-//            System.out.println("o" + (nrOb+1) + ": a" + (d1.nrAtrybutu+1) + " = " + d1.wartosc + ", czestosc: " + d1.czestosc);
-//
-//        }
 
 
 
@@ -301,11 +112,11 @@ public class Main {
         String[][] koncept = sysk;
         Map<Integer, Deskryptor> deskryptoryZObiektami = new HashMap<>();
 
-        for(int nrObiektu = 0; nrObiektu < koncept.length; nrObiektu++) {
+        for(int nrObiektu = 0; nrObiektu < koncept.length-1; nrObiektu++) {
             int czestosc = 0;
             String wartoscAtrybutu = koncept[nrObiektu][nrAtrybutu];
-            for (String[] kopia : kopiaSys) {
-                if (wartoscAtrybutu.equals(kopia[nrAtrybutu])) {
+            for (String[] kopiaSysObiekt : kopiaSys) {
+                if (wartoscAtrybutu.equals(kopiaSysObiekt[nrAtrybutu])) {
                     czestosc++;
                 }
             }
@@ -338,14 +149,27 @@ public class Main {
 
         Deskryptor out = new Deskryptor();
 
-        List<Deskryptor> listaWszystkichDeskryptorow = new ArrayList<>();
+        List<Integer> listaAtrybutowZSystemu = new ArrayList<>();
+        for(int nrAtrybutu=0; nrAtrybutu<sysk[0].length-1; nrAtrybutu++){
+            listaAtrybutowZSystemu.add(nrAtrybutu);
+        }
 
         for(Integer nrAtrybutu : listaNumerowAtrybutow){
+            if(listaAtrybutowZSystemu.contains(nrAtrybutu)){
+                listaAtrybutowZSystemu.remove((Object) nrAtrybutu);
+            }
+        }
+
+        List<Deskryptor> listaWszystkichDeskryptorow = new ArrayList<>();
+
+        for(Integer nrAtrybutu : listaAtrybutowZSystemu){
             Deskryptor d = najczestszyDeskryptorAtrybutu(sysk, nrAtrybutu);
             listaWszystkichDeskryptorow.add(d);
         }
 
         // mam liste wszystkich deskryptorow dla poszczegolnych atrybutow, musze teraz porownac sobie ich czestosci i wybrac ten, ktory ma najwiskza czestosc w kolejnosci 1..n
+
+        // musze porownac czestosci atrybutow ale tych, ktorych nie ma na liscie
         int najwiekszaCzestosc = 0;
         for(Deskryptor desk : listaWszystkichDeskryptorow){
             if(desk.czestosc > najwiekszaCzestosc){
@@ -382,7 +206,7 @@ public class Main {
         // zamieniam koncept na List<String[]>
 
         List<String[]> konceptLista = new ArrayList<>();
-
+//        konceptLista.addAll(Arrays.stream(koncept).collect(Collectors.toList()));
         for(String[] obiekt : koncept){
             konceptLista.add(obiekt);
         }
@@ -390,10 +214,15 @@ public class Main {
         List<Regula> regulyWynikoweWszystkie = new ArrayList<>();
 
         List<Integer> listaAtrybutow = new ArrayList<>();
-        listaAtrybutow.add(0);
-        listaAtrybutow.add(1);
-        listaAtrybutow.add(2);
-        listaAtrybutow.add(3);
+        for(int i=0; i<koncept[0].length-1; i++){
+            listaAtrybutow.add(i);
+        }
+
+
+//        listaAtrybutow.add(0);
+//        listaAtrybutow.add(1);
+//        listaAtrybutow.add(2);
+//        listaAtrybutow.add(3);
 
         // petla while dopoki koncept sie nie wyzeruje
 
@@ -405,9 +234,101 @@ public class Main {
 
 
         while(konceptLista.size() > 0) {
-            Regula rWynikowa = new Regula();
 
+            Boolean flaga = true;
+
+            // nie utworzyl na nowo listy atrybutow
+            List<Integer> robioneAtrybuty = new ArrayList<>();
+
+            Regula rWynikowa = new Regula();
             rWynikowa.decyzja = koncept[0][koncept.length + 1];
+
+            List<String[]> obiektySpelniajaceRegule = new ArrayList<>(konceptLista);
+
+            while(flaga) {
+
+                //   szukamy najczestszego deskryptora z konceptu (koncept moze sie zmniejszyc bo beda z niego usuwane obiekty)
+
+                // tutaj dostaje liste obiektow, ale nie moze tutaj dostac obiektow ktore nie spelniaja poprzedniej reguly
+                // tu sie wywala, rozmiar obiektyspelniajaceregule sie nie zgadza
+                String[][] konceptDoNajczestszyDeskryptorZListyAtrybutow = new String[obiektySpelniajaceRegule.size()][];
+//                int itr = 0;
+                for (int i = 0; i < obiektySpelniajaceRegule.size(); i++) {
+                    //if(rWynikowa.czyObiektSpelniaRegule(konceptLista.get(i)))
+                    konceptDoNajczestszyDeskryptorZListyAtrybutow[i] = obiektySpelniajaceRegule.get(i);
+//                    itr++;
+                }
+                Deskryptor d = najczestszyDeskryptorZListyAtrybutow(konceptDoNajczestszyDeskryptorZListyAtrybutow, robioneAtrybuty);
+
+
+                //   dodajemy najczestszyDeskryptorZListyAtrybutow do reguly
+                rWynikowa.deskryptor.put(d.nrAtrybutu, d.wartosc);
+
+
+                // sprawdzamy czy utworzona regula jest sprzeczna
+                if (!rWynikowa.czyNieSprzeczna(sysDec)) {
+
+                    //  dodaje do listy zrobionych atrybutow numer atrybutu z ktorego zostala utworzona aktualna regula
+                    robioneAtrybuty.add(d.nrAtrybutu);
+
+                    for(String[] obiekt : obiektySpelniajaceRegule){
+                        if(!rWynikowa.czyObiektSpelniaRegule(obiekt)){
+                            obiektySpelniajaceRegule.remove(obiekt);
+                        }
+                    }
+
+                    // zawezamy zbior przerabianych obiektow (konceptLista) usuwajac te obiekty, ktore nie spelniaja reguly (maja zostac tylko obiekty ktore spelniaja regule)
+                    if (robioneAtrybuty.size() == koncept[0].length - 1) {
+//                        konceptLista = rWynikowa.obiektySpelniajaceRegule(koncept);
+
+                        // z rozwazanego konceptu wykreslamy obiekty spelniajace regule
+                        //List<String[]> obiektySpelniajaceRegule = rWynikowa.obiektySpelniajaceRegule(koncept);
+                        for (String[] obiekt : konceptLista) {
+                            if(rWynikowa.czyObiektSpelniaRegule(obiekt)) {
+                                konceptLista.remove(obiekt);
+                            }
+                        }
+
+                        rWynikowa.support = obiektySpelniajaceRegule.size();
+
+                        regulyWynikoweWszystkie.add(rWynikowa);
+
+                        flaga = false;
+                    }
+                }
+
+                else {
+
+
+
+                    // z rozwazanego konceptu wykreslamy obiekty spelniajace regule
+                    List<String[]> konceptListaPom = new ArrayList<>(konceptLista);
+                    for (String[] obiekt : konceptLista) {
+                        if(rWynikowa.czyObiektSpelniaRegule(obiekt)) {
+                            konceptListaPom.remove(obiekt);
+                        }
+                    }
+                    konceptLista = new ArrayList<>(konceptListaPom);
+
+                    rWynikowa.support = obiektySpelniajaceRegule.size();
+                    regulyWynikoweWszystkie.add(rWynikowa);
+                    flaga = false;
+                }
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            /*
 
 
             // trzeba uwzglednic wyeliminowane obiekty po utworeniu reguly
@@ -431,15 +352,22 @@ public class Main {
 
                     // przy obiekcie 2 dla konceptu z decyzja "1" przy atrybucie dostaje obiekt o indeksie 1 (ob 2) a powinien dostac indeks obiektu 0 bo rozmiar tablicy koncept z listy jest 1 (tylko indeks 0 ma a powinna miec indeks 1)
                     List<Integer> obiektySpelniajaceReg = rWynikowa.obiektySpelniajaceRegule(koncept);
+                    System.out.println("Przed: "+obiektySpelniajaceReg);
                     int iteratorOdZera = 0;
-                    for(Integer obiektSpelniajacyRegule : obiektySpelniajaceReg){
-                        if(obiektSpelniajacyRegule > iteratorOdZera){
-                            // robie swapa zeby numer obiektu byl iterowany od zera, poprawic zeby szlo w odpowiedniej kolejnosci bo sie wysypie dla innej kolejnosci obiektow z niewlasciwymi indeksami
-                            obiektySpelniajaceReg.remove(obiektSpelniajacyRegule);
-                            obiektySpelniajaceReg.add(iteratorOdZera);
+                    int korekcja = rWynikowa.obiektySpelniajaceRegule(koncept).get(0) - iteratorOdZera;
+                    if(obiektySpelniajaceReg.size() > 0) {
+                        for (Integer obiektSpelniajacyRegule : obiektySpelniajaceReg) {
+                            if (obiektSpelniajacyRegule > iteratorOdZera) {
+                                // robie swapa zeby numer obiektu byl iterowany od zera, poprawic zeby szlo w odpowiedniej kolejnosci bo sie wysypie dla innej kolejnosci obiektow z niewlasciwymi indeksami
+//                                obiektySpelniajaceReg.remove(obiektSpelniajacyRegule);
+//                                obiektySpelniajaceReg.add(iteratorOdZera);
+//                                Collections.rotate(obiektySpelniajaceReg, -korekcja);
+                                obiektySpelniajaceReg.set(iteratorOdZera, obiektySpelniajaceReg.get(iteratorOdZera)-korekcja);
+                            }
+                            iteratorOdZera++;
                         }
-                        iteratorOdZera++;
                     }
+                    System.out.println("Po: "+obiektySpelniajaceReg);
                     // sprawdzenie rozmiaryw list, jesli wielkosc obiektySpelniajaceReg < konceptLista to ustaw wielkosc konceptZListy na obiektyspelniajaceRegule.size()
                     int konceptZListySize = 0;
                     if (obiektySpelniajaceReg.size() < konceptLista.size()) {
@@ -501,6 +429,11 @@ public class Main {
                 }
             }
 
+
+
+
+
+
             // w tym momencie dostaje regule ze wszystkimi deskryptorami z listy atrybutow
 
             // teraz musze pobrac obiekty ( [] ) ktore spelniaja ta regule
@@ -531,6 +464,10 @@ public class Main {
 
             regulyWynikoweWszystkie.add(rWynikowa);
 
+        }
+
+
+        */
         }
 
         return regulyWynikoweWszystkie;

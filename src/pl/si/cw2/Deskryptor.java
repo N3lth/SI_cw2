@@ -17,4 +17,10 @@ public class Deskryptor {
         this.wartosc = wartosc;
         this.czestosc = czestosc;
     }
+
+    public String toString(){
+        String out = "";
+        out+="a" + (nrAtrybutu+1) + " = " + wartosc + ", czestosc: " + czestosc;
+        return out;
+    }
 }

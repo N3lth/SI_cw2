@@ -39,15 +39,15 @@ public class Regula {
 
 
 
-    public List<Integer> obiektySpelniajaceRegule(String[][] system)     //   obiektySupportu
+    public List<String[]> obiektySpelniajaceRegule(String[][] system)     //   obiektySupportu
     {
-        List<Integer> obiektyIdx = new ArrayList<>();
+        List<String[]> obiektySpelniajaceRegule = new ArrayList<>();
         for (int i = 0; i < system.length; i++)
         {
             if (czyObiektSpelniaRegule(system[i]))
-                obiektyIdx.add(i);
+                obiektySpelniajaceRegule.add(system[i]);
         }
-        return obiektyIdx;
+        return obiektySpelniajaceRegule;
     }
 
 
