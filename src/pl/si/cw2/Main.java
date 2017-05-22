@@ -61,7 +61,7 @@ public class Main {
 
         String[][] systemZPliku = readFile("SystemDecyzyjny.txt",8, 7);
 
-        String[][] sys = systemLEMYoutube;     // wybor systemu
+        String[][] sys = systemLEMPDF;     // wybor systemu
 
 
 
@@ -75,7 +75,11 @@ public class Main {
 //        listaAtrybutow.add(2);
 //        listaAtrybutow.add(3);
 
-        Deskryptor d1 = najczestszyDeskryptorZListyAtrybutow(zwrocKoncept(sys, "1"), listaAtrybutow);
+                String[][] testKoncept  = {
+                {"1","2","1","1","1"}
+        };
+
+        Deskryptor d1 = najczestszyDeskryptorZListyAtrybutow(testKoncept, listaAtrybutow);
         System.out.println("a" + (d1.nrAtrybutu+1) + " = " + d1.wartosc + ", czestosc: " + d1.czestosc);
 
         List<String> decyzjeKonceptu = new ArrayList<>();
@@ -87,7 +91,7 @@ public class Main {
 //                {"1","2","5","0","0"}
 //        };
 //        for(String decyzjaKon : decyzjeKonceptu) {
-        String decyzjaKon = "1";
+        String decyzjaKon = "2";
         for (Regula r : regulyWynikowe(sys, decyzjaKon)) {
                 System.out.println(r.toString());
             }
@@ -112,7 +116,7 @@ public class Main {
         String[][] koncept = sysk;
         Map<Integer, Deskryptor> deskryptoryZObiektami = new HashMap<>();
 
-        for(int nrObiektu = 0; nrObiektu < koncept.length-1; nrObiektu++) {
+        for(int nrObiektu = 0; nrObiektu < koncept.length; nrObiektu++) {
             int czestosc = 0;
             String wartoscAtrybutu = koncept[nrObiektu][nrAtrybutu];
             for (String[] kopiaSysObiekt : kopiaSys) {
@@ -154,9 +158,11 @@ public class Main {
             listaAtrybutowZSystemu.add(nrAtrybutu);
         }
 
-        for(Integer nrAtrybutu : listaNumerowAtrybutow){
-            if(listaAtrybutowZSystemu.contains(nrAtrybutu)){
-                listaAtrybutowZSystemu.remove((Object) nrAtrybutu);
+        if(!listaNumerowAtrybutow.isEmpty()) {
+            for (Integer nrAtrybutu : listaNumerowAtrybutow) {
+                if (listaAtrybutowZSystemu.contains(nrAtrybutu)) {
+                    listaAtrybutowZSystemu.remove((Object) nrAtrybutu);
+                }
             }
         }
 
@@ -192,18 +198,6 @@ public class Main {
     public static List<Regula> regulyWynikowe(String[][] sysDec, String decyzjaDlaKonceptu){
 
         String[][] koncept = zwrocKoncept(sysDec, decyzjaDlaKonceptu);
-
-//        String[][] koncept = {
-//                {"1", "0", "1", "0", "0"},
-//                {"1", "2", "5", "0", "0"}
-//        };
-
-
-//                String[][] koncept = {
-//                {"1", "2", "1", "1", "0"}
-//        };
-
-        // zamieniam koncept na List<String[]>
 
         List<String[]> konceptLista = new ArrayList<>();
 //        konceptLista.addAll(Arrays.stream(koncept).collect(Collectors.toList()));
@@ -241,7 +235,7 @@ public class Main {
             List<Integer> robioneAtrybuty = new ArrayList<>();
 
             Regula rWynikowa = new Regula();
-            rWynikowa.decyzja = koncept[0][koncept.length + 1];
+            rWynikowa.decyzja = decyzjaDlaKonceptu;//   koncept[0][koncept.length -1]
 
             List<String[]> obiektySpelniajaceRegule = new ArrayList<>(konceptLista);
 
@@ -271,11 +265,18 @@ public class Main {
                     //  dodaje do listy zrobionych atrybutow numer atrybutu z ktorego zostala utworzona aktualna regula
                     robioneAtrybuty.add(d.nrAtrybutu);
 
-                    for(String[] obiekt : obiektySpelniajaceRegule){
+                    // zrobiona kopia listy, java nie pozwala na modyfikacje aktualnego stosu (listy) - nie sprawdza elementow usunietych
+                    List<String[]> obiektySpelniajaceReguleKopia = new ArrayList<>(obiektySpelniajaceRegule);
+
+                    for(String[] obiekt : obiektySpelniajaceReguleKopia){
                         if(!rWynikowa.czyObiektSpelniaRegule(obiekt)){
                             obiektySpelniajaceRegule.remove(obiekt);
+//                            obiektySpelniajaceReguleKopia.add(obiekt);
                         }
                     }
+
+//                    obiektySpelniajaceRegule.removeAll(obiektySpelniajaceReguleKopia);
+//                    obiektySpelniajaceRegule = obiektySpelniajaceReguleKopia;
 
                     // zawezamy zbior przerabianych obiektow (konceptLista) usuwajac te obiekty, ktore nie spelniaja reguly (maja zostac tylko obiekty ktore spelniaja regule)
                     if (robioneAtrybuty.size() == koncept[0].length - 1) {
@@ -283,13 +284,14 @@ public class Main {
 
                         // z rozwazanego konceptu wykreslamy obiekty spelniajace regule
                         //List<String[]> obiektySpelniajaceRegule = rWynikowa.obiektySpelniajaceRegule(koncept);
-                        for (String[] obiekt : konceptLista) {
+                        List<String[]> konceptListaKopia = new ArrayList<>(konceptLista);
+                        for (String[] obiekt : konceptListaKopia) {
                             if(rWynikowa.czyObiektSpelniaRegule(obiekt)) {
                                 konceptLista.remove(obiekt);
                             }
                         }
 
-                        rWynikowa.support = obiektySpelniajaceRegule.size();
+                        rWynikowa.support = rWynikowa.obiektySpelniajaceRegule(sysDec).size();
 
                         regulyWynikoweWszystkie.add(rWynikowa);
 
@@ -303,14 +305,15 @@ public class Main {
 
                     // z rozwazanego konceptu wykreslamy obiekty spelniajace regule
                     List<String[]> konceptListaPom = new ArrayList<>(konceptLista);
-                    for (String[] obiekt : konceptLista) {
+                    for (String[] obiekt : konceptListaPom) {
                         if(rWynikowa.czyObiektSpelniaRegule(obiekt)) {
-                            konceptListaPom.remove(obiekt);
+                            konceptLista.remove(obiekt);
                         }
                     }
-                    konceptLista = new ArrayList<>(konceptListaPom);
+//                    konceptLista = new ArrayList<>(konceptListaPom);
 
-                    rWynikowa.support = obiektySpelniajaceRegule.size();
+//                    rWynikowa.support = obiektySpelniajaceRegule.size();
+                    rWynikowa.support = rWynikowa.obiektySpelniajaceRegule(sysDec).size();
                     regulyWynikoweWszystkie.add(rWynikowa);
                     flaga = false;
                 }
