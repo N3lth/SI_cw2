@@ -1,5 +1,7 @@
 package pl.si.cw2;
 
+import javafx.collections.transformation.SortedList;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -52,6 +54,21 @@ public class Main {
                 {"1","1","1","3","1","2"}
 
         };
+        Integer[][] systemTst = {
+                {2, 4, 2, 1, 4},
+                {1, 2, 1, 1, 2},
+                {9, 7, 10, 7, 4},
+                {4, 4, 10, 10, 2}
+        };
+
+        Integer[][] systemTrn = {
+                {1, 3, 1, 1, 2},
+                {10, 3, 2, 1, 2},
+                {2, 3, 1, 1, 2},
+                {10, 9, 7, 1, 4},
+                {3, 5, 2, 2, 4},
+                {2, 3, 1, 1, 4}
+        };
 
         String[][] systemZPliku = readFile("SystemDecyzyjny.txt",8, 7);
 
@@ -60,15 +77,87 @@ public class Main {
 
 
 
-        //      ALGORYTM 3
+        //      KNN
+
+//        System.out.println(Metryki.euklidesa(systemTst[0], systemTrn[1]).getKey()+" "+Metryki.euklidesa(systemTst[0], systemTrn[1]).getValue());
+
+        for(Integer[] obiektTst : systemTst) {
+            System.out.println(klasyfikacja(obiektTst, systemTrn, 2));
+        }
+
+    }
 
 
-        List<String> decyzjeKonceptu = new ArrayList<>(Arrays.stream(uniqueValues(colToRow(sys,colsCount(sys)))).collect(Collectors.toSet()));
-        for(String decyzjaKon : decyzjeKonceptu) {
-            for (Regula r : regulyWynikowe(sys, decyzjaKon)) {
-                System.out.println(r.toString());
+    public static String klasyfikacja(Integer[] obiekt, Integer[][] sysTrn, Integer k){
+
+        Map<Integer, List<Double>> odleglosciOdObiektu = new HashMap<Integer, List<Double>>();
+        // zestaw danych - klasa decyzyjna, odleglosc
+
+        Set<Integer> klasyDecyzyjne = new HashSet<>();
+
+//        Map<Integer, Double> odleglosci = new HashMap<Integer, Double>();
+
+
+
+        for(Integer[] obiektTrn : sysTrn){
+            klasyDecyzyjne.add(Metryki.euklidesa(obiekt,obiektTrn).getValue());
+        }
+
+
+        for(Integer klasa : klasyDecyzyjne){
+            List<Double> odleglosci = new ArrayList<Double>();
+            for(Integer[] obiektTrn : sysTrn){
+                if(klasa.equals(Metryki.euklidesa(obiekt,obiektTrn).getValue())){
+                    odleglosci.add(Metryki.euklidesa(obiekt,obiektTrn).getKey());
+                }
+            }
+            odleglosciOdObiektu.put(klasa, odleglosci);
+        }
+
+//        System.out.println(odleglosciOdObiektu);
+
+
+        // licze odleglosci miedzy obiektami i mocy
+
+        Map<Integer, Double> moceDlaKlasDecyzyjnych = new HashMap<>();
+
+        for(Integer klasaDec : odleglosciOdObiektu.keySet()) {
+            List<Double> listaOdleglosciDlaKlasy = new ArrayList<>(odleglosciOdObiektu.get(klasaDec));
+            Collections.sort(listaOdleglosciDlaKlasy);
+            Double moc = 0.0;
+            for (int i = 0; i < k; i++) {
+                moc += listaOdleglosciDlaKlasy.get(i);
+            }
+            moceDlaKlasDecyzyjnych.put(klasaDec, moc);
+//            System.out.println("Klasa decyzyjna: "+klasaDec+", Moc: "+moc);
+        }
+
+
+
+        // teraz musze porownac wartosci i wybrac najmniejsza odleglosc (moc) z calego zestawu oraz przypisac dla instancji ObiektKNN nr obiektu i decyzje
+        // moge wywalic sama klase dec, a numer obiektu mam wyzej, przed uzyciem metody klasyfikacja
+
+
+        // tutaj musze dodac tez sprawdzenie czy moce rowne zeby wywalic blad
+
+        if(new HashSet<Double>(moceDlaKlasDecyzyjnych.values()).size() == 1){
+//            System.out.println("Wszystkie moce takie same");
+            return "nieklasyfikowany";
+        }
+
+        Double najwiekszaMoc = Collections.max(moceDlaKlasDecyzyjnych.values());
+
+//        System.out.println("\nWynik:");
+        List<Double> listaMocy = new ArrayList<>(moceDlaKlasDecyzyjnych.values());
+        Double najmniejszaMoc = Collections.min(listaMocy);
+        for(Map.Entry<Integer, Double> mocDlaKlasy : moceDlaKlasDecyzyjnych.entrySet()){
+            if(mocDlaKlasy.getValue().equals(najmniejszaMoc)){
+//                System.out.println("Klasa decyzyjna: "+mocDlaKlasy.getKey()+", Moc: "+mocDlaKlasy.getValue());
+                return mocDlaKlasy.getKey().toString();
             }
         }
+
+        return "err";
 
     }
 
