@@ -1,9 +1,11 @@
 package pl.si.cw2;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.collections.transformation.SortedList;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,14 +83,256 @@ public class Main {
 
 //        System.out.println(Metryki.euklidesa(systemTst[0], systemTrn[1]).getKey()+" "+Metryki.euklidesa(systemTst[0], systemTrn[1]).getValue());
 
-        for(Integer[] obiektTst : systemTst) {
-            System.out.println(klasyfikacja(obiektTst, systemTrn, 2));
-        }
+//        for(Integer[] obiektTst : systemTst) {
+//            System.out.println(klasyfikacja(obiektTst, systemTrn, 2));
+//        }
+
+//        Metryki met = new Metryki();
+//        Class c = met.getClass();
+//        System.out.println(c.getDeclaredMethods()[0]);
+
+//        Method mtd = Metryki.euklidesa().getClass();
+//        Method m = c.getDeclaredMethod()Method(, Integer[].class, Integer[].class);
+//        java.lang.reflect.Method method = Metryki.class.getDeclaredMethod("euklidesa", Integer[].class, Integer[].class);
+
+        macierzPredykcji(systemTst, systemTrn);
 
     }
 
+    public static String macierzPredykcji(Integer[][] sysTst, Integer[][] sysTrn){
 
-    public static String klasyfikacja(Integer[] obiekt, Integer[][] sysTrn, Integer k){
+        List<Integer> listaDecyzjiTST = new ArrayList<>();
+
+        List<Integer> listaDecyzjiKNN = new ArrayList<>();
+
+        for(Integer[] obiektTst : sysTst){
+            listaDecyzjiKNN.add(klasyfikacja(obiektTst, sysTrn, 2));
+            listaDecyzjiTST.add(obiektTst[obiektTst.length-1]);
+        }
+
+        System.out.println(listaDecyzjiKNN);
+        System.out.println(listaDecyzjiTST);
+
+        List<Integer> klasyDecyzyjne = new ArrayList<>();
+        klasyDecyzyjne.add(2);
+        klasyDecyzyjne.add(4);
+
+        Map<Integer, List<Integer>> klasaZNumeramiObiektow = new HashMap<>();
+
+        for(Integer klasaDec : klasyDecyzyjne) {
+            List<Integer> numeryObiektowDlaKlasyDecyzyjnej = new ArrayList<>();
+            for (int i = 0; i < sysTst.length; i++) {
+                Integer[] obiektTst = sysTst[i];
+                if (obiektTst[obiektTst.length - 1] == klasaDec) {
+                    numeryObiektowDlaKlasyDecyzyjnej.add(i);
+                }
+            }
+            klasaZNumeramiObiektow.put(klasaDec, numeryObiektowDlaKlasyDecyzyjnej);
+        }
+
+        // mam obiekty dla okreslonej klasy decyzyjnej (2), teraz musze policzyc ile razy wystepuja na tej liscie obiekty o poszczegolnych klasach decyzyjnych
+
+
+
+
+
+
+//        for(Map.Entry<Integer, List<Integer>> obiektyDlaKlasy : klasaZNumeramiObiektow.entrySet()){
+//            System.out.println(obiektyDlaKlasy.getKey()+" "+obiektyDlaKlasy.getValue());
+//        }
+
+        Map<Integer, Map<Integer, Integer>> wynik = new HashMap<>();
+
+        for(Map.Entry<Integer, List<Integer>> obiektyDlaKlasy : klasaZNumeramiObiektow.entrySet()) {
+//            System.out.print(obiektyDlaKlasy.getKey()+": ");
+            Map<Integer, Integer> iloscWystapienWKlasie = new HashMap<>();
+//              klasa  wystapienia
+
+            for (Integer klasa : klasyDecyzyjne) {
+                int licznikWystapien = 0;
+                for (Integer nrObiektu : obiektyDlaKlasy.getValue()) {
+                    if (listaDecyzjiKNN.get(nrObiektu).equals(klasa)) {
+                        licznikWystapien++;
+                    }
+                }
+                iloscWystapienWKlasie.put(klasa, licznikWystapien);
+            }
+            wynik.put(obiektyDlaKlasy.getKey(), iloscWystapienWKlasie);
+//            System.out.println(iloscWystapienWKlasie.entrySet());
+        }
+
+        System.out.println(wynik);
+
+
+        Map<Integer, Integer> liczbaObiektowKlasy = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne){
+            int iloscObiektow = 0;
+            for(Map.Entry<Integer, List<Integer>> obiektyDlaKlasy : klasaZNumeramiObiektow.entrySet()){
+                if(obiektyDlaKlasy.getKey().equals(klasa)) {
+                    iloscObiektow = obiektyDlaKlasy.getValue().size();
+                }
+            }
+            liczbaObiektowKlasy.put(klasa, iloscObiektow);
+        }
+
+        System.out.println("Liczba obiektow: "+liczbaObiektowKlasy);
+
+
+
+
+        Map<Integer, Integer> obiektyChwycone = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne) {
+            int liczbaObiektowChwyconych = 0;
+            for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
+                if(listaDecyzjiKNN.get(nrObiektu) >= 0){
+                    liczbaObiektowChwyconych++;
+                }
+            }
+            obiektyChwycone.put(klasa, liczbaObiektowChwyconych);
+        }
+
+        System.out.println("Obiekty chwycone: "+obiektyChwycone);
+
+
+
+
+
+        Map<Integer, Integer> obiektyPoprawnieSklasyfikowane = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne) {
+            int liczbaObiektowPoprawnieSklasyfikowanych = 0;
+            for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
+                if(listaDecyzjiKNN.get(nrObiektu).equals(listaDecyzjiTST.get(nrObiektu))){
+                    liczbaObiektowPoprawnieSklasyfikowanych++;
+                }
+            }
+            obiektyPoprawnieSklasyfikowane.put(klasa, liczbaObiektowPoprawnieSklasyfikowanych);
+        }
+
+        System.out.println("Obiekty poprawnie sklasyfikowane: "+obiektyPoprawnieSklasyfikowane);
+
+
+
+
+        Map<Integer, Integer> obiektyZleSklasyfikowane = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne) {
+            int liczbaObiektowZleSklasyfikowanych = 0;
+            for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
+                if(!listaDecyzjiKNN.get(nrObiektu).equals(listaDecyzjiTST.get(nrObiektu)) && listaDecyzjiKNN.get(nrObiektu) >= 0){
+                    liczbaObiektowZleSklasyfikowanych++;
+                }
+            }
+            obiektyZleSklasyfikowane.put(klasa, liczbaObiektowZleSklasyfikowanych);
+        }
+
+        System.out.println("Obiekty zle sklasyfikowane: "+obiektyZleSklasyfikowane);
+
+
+
+
+
+        Map<Integer, Double> accuracyC = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne){
+            double acc = (double) obiektyPoprawnieSklasyfikowane.get(klasa)/obiektyChwycone.get(klasa);
+            accuracyC.put(klasa, acc);
+        }
+
+        System.out.println("Accuracy: "+accuracyC);
+
+
+
+
+        Map<Integer, Double> coverageC = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne){
+            double cov = (double) obiektyChwycone.get(klasa)/liczbaObiektowKlasy.get(klasa);
+            coverageC.put(klasa, cov);
+        }
+
+        System.out.println("Coverage: "+coverageC);
+
+
+
+
+        Map<Integer, Double> TprC = new HashMap<>();
+        for(Integer klasa : klasyDecyzyjne){
+            double tpr = (double) obiektyPoprawnieSklasyfikowane.get(klasa)/(obiektyPoprawnieSklasyfikowane.get(klasa) + obiektyZleSklasyfikowane.get(klasa));
+            TprC.put(klasa, tpr);
+        }
+
+        System.out.println("TPR: "+TprC);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        int iloscObiektowTST = 0;
+        for(Integer klasa : klasyDecyzyjne){
+            for(Map.Entry<Integer, List<Integer>> obiektyDlaKlasy : klasaZNumeramiObiektow.entrySet()){
+                if(obiektyDlaKlasy.getKey().equals(klasa)) {
+                    iloscObiektowTST += obiektyDlaKlasy.getValue().size();
+                }
+            }
+        }
+
+        System.out.println("Liczba obiektow TST: "+iloscObiektowTST);
+
+
+
+
+        int liczbaObiektowChwyconychTST = 0;
+        for(Integer klasa : klasyDecyzyjne) {
+            for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
+                if(listaDecyzjiKNN.get(nrObiektu) >= 0){
+                    liczbaObiektowChwyconychTST++;
+                }
+            }
+        }
+
+        System.out.println("Obiekty chwycone TST: "+liczbaObiektowChwyconychTST);
+
+
+
+
+
+
+
+        int liczbaObiektowPoprawnieSklasyfikowanychTST = 0;
+        for(Integer klasa : klasyDecyzyjne) {
+            for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
+                if(listaDecyzjiKNN.get(nrObiektu).equals(listaDecyzjiTST.get(nrObiektu))){
+                    liczbaObiektowPoprawnieSklasyfikowanychTST++;
+                }
+            }
+        }
+
+        System.out.println("Obiekty poprawnie sklasyfikowane TST: "+liczbaObiektowPoprawnieSklasyfikowanychTST);
+
+
+        System.out.println("Accuracy TST: "+(double) liczbaObiektowPoprawnieSklasyfikowanychTST/liczbaObiektowChwyconychTST);
+        System.out.println("Coverage TST: "+(double) liczbaObiektowChwyconychTST/iloscObiektowTST);
+
+
+
+
+
+
+        return "";
+    }
+
+
+    public static Integer klasyfikacja(Integer[] obiekt, Integer[][] sysTrn, Integer k){
 
         Map<Integer, List<Double>> odleglosciOdObiektu = new HashMap<Integer, List<Double>>();
         // zestaw danych - klasa decyzyjna, odleglosc
@@ -96,6 +340,7 @@ public class Main {
         Set<Integer> klasyDecyzyjne = new HashSet<>();
 
 //        Map<Integer, Double> odleglosci = new HashMap<Integer, Double>();
+
 
 
 
@@ -142,7 +387,7 @@ public class Main {
 
         if(new HashSet<Double>(moceDlaKlasDecyzyjnych.values()).size() == 1){
 //            System.out.println("Wszystkie moce takie same");
-            return "nieklasyfikowany";
+            return -1;   // kod zwrotki dla nieklasyfikowanego obiektu
         }
 
         Double najwiekszaMoc = Collections.max(moceDlaKlasDecyzyjnych.values());
@@ -153,11 +398,11 @@ public class Main {
         for(Map.Entry<Integer, Double> mocDlaKlasy : moceDlaKlasDecyzyjnych.entrySet()){
             if(mocDlaKlasy.getValue().equals(najmniejszaMoc)){
 //                System.out.println("Klasa decyzyjna: "+mocDlaKlasy.getKey()+", Moc: "+mocDlaKlasy.getValue());
-                return mocDlaKlasy.getKey().toString();
+                return mocDlaKlasy.getKey();
             }
         }
 
-        return "err";
+        return -2;    // kod zwrotki dla innego bledu
 
     }
 
