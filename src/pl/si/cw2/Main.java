@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 public class Main {
@@ -110,12 +111,13 @@ public class Main {
             listaDecyzjiTST.add(obiektTst[obiektTst.length-1]);
         }
 
-        System.out.println(listaDecyzjiKNN);
-        System.out.println(listaDecyzjiTST);
+//        System.out.println(listaDecyzjiKNN);
+//        System.out.println(listaDecyzjiTST);
 
-        List<Integer> klasyDecyzyjne = new ArrayList<>();
-        klasyDecyzyjne.add(2);
-        klasyDecyzyjne.add(4);
+        List<Integer> klasyDecyzyjne = unikalneDecyzje(sysTst);
+
+
+
 
         Map<Integer, List<Integer>> klasaZNumeramiObiektow = new HashMap<>();
 
@@ -161,7 +163,10 @@ public class Main {
 //            System.out.println(iloscWystapienWKlasie.entrySet());
         }
 
-        System.out.println(wynik);
+//        System.out.println(wynik);
+
+
+
 
 
         Map<Integer, Integer> liczbaObiektowKlasy = new HashMap<>();
@@ -175,26 +180,17 @@ public class Main {
             liczbaObiektowKlasy.put(klasa, iloscObiektow);
         }
 
-        System.out.println("Liczba obiektow: "+liczbaObiektowKlasy);
 
-
-
-
-        Map<Integer, Integer> obiektyChwycone = new HashMap<>();
+        Map<Integer, Integer> obiektySklasyfikowane = new HashMap<>();
         for(Integer klasa : klasyDecyzyjne) {
-            int liczbaObiektowChwyconych = 0;
+            int liczbaObiektowSklasyfikowanych = 0;
             for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
                 if(listaDecyzjiKNN.get(nrObiektu) >= 0){
-                    liczbaObiektowChwyconych++;
+                    liczbaObiektowSklasyfikowanych++;
                 }
             }
-            obiektyChwycone.put(klasa, liczbaObiektowChwyconych);
+            obiektySklasyfikowane.put(klasa, liczbaObiektowSklasyfikowanych);
         }
-
-        System.out.println("Obiekty chwycone: "+obiektyChwycone);
-
-
-
 
 
         Map<Integer, Integer> obiektyPoprawnieSklasyfikowane = new HashMap<>();
@@ -208,23 +204,32 @@ public class Main {
             obiektyPoprawnieSklasyfikowane.put(klasa, liczbaObiektowPoprawnieSklasyfikowanych);
         }
 
-        System.out.println("Obiekty poprawnie sklasyfikowane: "+obiektyPoprawnieSklasyfikowane);
 
 
+        //  PRZEROBIENIE MAPY WYNIKU NA TABLICE TPR
 
+        Integer[][] wynikArr = new Integer[wynik.size()][];
 
-        Map<Integer, Integer> obiektyZleSklasyfikowane = new HashMap<>();
-        for(Integer klasa : klasyDecyzyjne) {
-            int liczbaObiektowZleSklasyfikowanych = 0;
-            for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
-                if(!listaDecyzjiKNN.get(nrObiektu).equals(listaDecyzjiTST.get(nrObiektu)) && listaDecyzjiKNN.get(nrObiektu) >= 0){
-                    liczbaObiektowZleSklasyfikowanych++;
-                }
+        int licznikKlas = 0;
+        for(Map.Entry<Integer, Map<Integer, Integer>> jednaKlasaWyniku : wynik.entrySet()){
+            Integer[] wierszArr = new Integer[wynik.size()];
+            int licznikWierszy = 0;
+            for(Map.Entry<Integer, Integer> kolumnyDlaKlasy : jednaKlasaWyniku.getValue().entrySet()){
+                wierszArr[licznikWierszy] = kolumnyDlaKlasy.getValue();
+                licznikWierszy++;
             }
-            obiektyZleSklasyfikowane.put(klasa, liczbaObiektowZleSklasyfikowanych);
+            wynikArr[licznikKlas] = wierszArr;
+            licznikKlas++;
         }
 
-        System.out.println("Obiekty zle sklasyfikowane: "+obiektyZleSklasyfikowane);
+
+        Map<Integer, Integer[]> wynikTpr = new HashMap<>();
+
+        int licznikDlaArr = 0;
+        for(Integer klasa : klasyDecyzyjne){
+            wynikTpr.put(klasa, colToRowInt(wynikArr, licznikDlaArr));
+            licznikDlaArr++;
+        }
 
 
 
@@ -232,43 +237,23 @@ public class Main {
 
         Map<Integer, Double> accuracyC = new HashMap<>();
         for(Integer klasa : klasyDecyzyjne){
-            double acc = (double) obiektyPoprawnieSklasyfikowane.get(klasa)/obiektyChwycone.get(klasa);
+            double acc = (double) obiektyPoprawnieSklasyfikowane.get(klasa)/obiektySklasyfikowane.get(klasa);
             accuracyC.put(klasa, acc);
         }
-
-        System.out.println("Accuracy: "+accuracyC);
-
-
 
 
         Map<Integer, Double> coverageC = new HashMap<>();
         for(Integer klasa : klasyDecyzyjne){
-            double cov = (double) obiektyChwycone.get(klasa)/liczbaObiektowKlasy.get(klasa);
+            double cov = (double) obiektySklasyfikowane.get(klasa)/liczbaObiektowKlasy.get(klasa);
             coverageC.put(klasa, cov);
         }
-
-        System.out.println("Coverage: "+coverageC);
-
-
 
 
         Map<Integer, Double> TprC = new HashMap<>();
         for(Integer klasa : klasyDecyzyjne){
-            double tpr = (double) obiektyPoprawnieSklasyfikowane.get(klasa)/(obiektyPoprawnieSklasyfikowane.get(klasa) + obiektyZleSklasyfikowane.get(klasa));
+            double tpr = (double) obiektyPoprawnieSklasyfikowane.get(klasa) / Arrays.stream(wynikTpr.get(klasa)).mapToInt(e -> e).sum();
             TprC.put(klasa, tpr);
         }
-
-        System.out.println("TPR: "+TprC);
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -286,11 +271,6 @@ public class Main {
             }
         }
 
-        System.out.println("Liczba obiektow TST: "+iloscObiektowTST);
-
-
-
-
         int liczbaObiektowChwyconychTST = 0;
         for(Integer klasa : klasyDecyzyjne) {
             for(Integer nrObiektu : klasaZNumeramiObiektow.get(klasa)){
@@ -299,13 +279,6 @@ public class Main {
                 }
             }
         }
-
-        System.out.println("Obiekty chwycone TST: "+liczbaObiektowChwyconychTST);
-
-
-
-
-
 
 
         int liczbaObiektowPoprawnieSklasyfikowanychTST = 0;
@@ -317,9 +290,10 @@ public class Main {
             }
         }
 
-        System.out.println("Obiekty poprawnie sklasyfikowane TST: "+liczbaObiektowPoprawnieSklasyfikowanychTST);
 
+        wyswietlMacierzPredykcji(klasyDecyzyjne, wynik, liczbaObiektowKlasy, accuracyC, coverageC, TprC);
 
+        System.out.println();
         System.out.println("Accuracy TST: "+(double) liczbaObiektowPoprawnieSklasyfikowanychTST/liczbaObiektowChwyconychTST);
         System.out.println("Coverage TST: "+(double) liczbaObiektowChwyconychTST/iloscObiektowTST);
 
@@ -329,6 +303,50 @@ public class Main {
 
 
         return "";
+    }
+
+    public static void wyswietlMacierzPredykcji(List<Integer> klasyDecyzyjne, Map<Integer, Map<Integer, Integer>> wynik, Map<Integer, Integer> liczbaObiektowKlasy, Map<Integer, Double> accuracyC, Map<Integer, Double> coverageC, Map<Integer, Double> TprC){
+        Map<Integer, List<Double>> macierzPredykcji = new HashMap<>();
+
+        for(Integer klasa : klasyDecyzyjne){
+            List<Double> wierszMacierzy = new ArrayList<>();
+            for(Map.Entry<Integer, Map<Integer, Integer>> wynikDlaKlasy : wynik.entrySet()){
+                if(wynikDlaKlasy.getKey().equals(klasa)) {
+                    for (Map.Entry<Integer, Integer> iloscWystapienDlaKlasy : wynikDlaKlasy.getValue().entrySet()) {
+                        wierszMacierzy.add((double) iloscWystapienDlaKlasy.getValue());
+                    }
+                }
+            }
+            wierszMacierzy.add((double) liczbaObiektowKlasy.get(klasa));
+            wierszMacierzy.add(accuracyC.get(klasa));
+            wierszMacierzy.add(coverageC.get(klasa));
+
+            macierzPredykcji.put(klasa, wierszMacierzy);
+        }
+
+
+
+
+        //   WYSWIETLANIE
+
+        System.out.print("      ");
+        for(Integer klasa : klasyDecyzyjne){
+            if(klasyDecyzyjne.get(klasyDecyzyjne.size()-1).equals(klasa)) System.out.print(klasa+"   ");
+            else System.out.print(klasa+"    ");
+
+        }
+        System.out.println("n.o  acc  cov");
+        for(Integer klasa : klasyDecyzyjne) {
+            System.out.print(klasa+"    ");
+            macierzPredykcji.get(klasa).forEach(e -> System.out.print(e+"  "));
+            System.out.println();
+        }
+        System.out.print("TPR  ");
+        for(Integer klasa : klasyDecyzyjne){
+            System.out.print(TprC.get(klasa)+"  ");
+        }
+        System.out.println();
+
     }
 
 
@@ -406,6 +424,17 @@ public class Main {
 
     }
 
+
+    public static List<Integer> unikalneDecyzje(Integer[][] sys){
+        List<Integer> klasyDecyzyjne = new ArrayList<>();
+        for(Integer[] obiekt : sys){
+            klasyDecyzyjne.add(obiekt[sys.length]);
+        }
+
+//        Set<Integer> klasyDecyzyjneSet = new HashSet<>(klasyDecyzyjne);
+
+        return new ArrayList<>(new HashSet<>(klasyDecyzyjne));//klasyDecyzyjneSet);
+    }
 
 
     public static List<Regula> regulyWynikowe(String[][] sysDec, String decyzjaDlaKonceptu){
@@ -662,6 +691,29 @@ public class Main {
     }
 
 
+
+    public static int rowsCountInt(Integer[][] fileTab){
+        int count = 0;
+        for(int i = 0; i<fileTab.length; i++){
+            if(fileTab[i][0] != null){
+                count = i;
+            }
+        }
+        return count+1;
+    }
+
+
+    public static int colsCountInt(Integer[][] fileTab){
+        int count = 0;
+        for(int i = 0; i<fileTab[0].length; i++){
+            if(fileTab[0][i] != null){
+                count = i;
+            }
+        }
+        return count+1;
+    }
+
+
     public static String[] uniqueValues(String[] tab){
 
         List<String> Unique = new ArrayList<String>();
@@ -683,6 +735,22 @@ public class Main {
         for(int i = 0; i<rows; i++){
             for (int j = 0; j<cols; j++){
                 resCol[i] = fileTab[i][col - 1];
+            }
+        }
+        return resCol;
+    }
+
+
+
+
+    public static Integer[] colToRowInt(Integer[][] fileTab, int col){
+        int rows = rowsCountInt(fileTab);
+        int cols = colsCountInt(fileTab);
+        Integer[] resCol = new Integer[rows];
+
+        for(int i = 0; i<rows; i++){
+            for (int j = 0; j<cols; j++){
+                resCol[i] = fileTab[i][col];
             }
         }
         return resCol;
