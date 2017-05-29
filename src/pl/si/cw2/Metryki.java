@@ -15,8 +15,8 @@ public class Metryki {
         for(int i=0; i<(tst.length)-1; i++){
             wynik+=Math.abs((tst[i]-trn[i]));
         }
-        Pair<Double, Integer> out = new Pair<>(wynik,trn[trn.length-1]);
-        return out;
+
+        return new Pair<>(wynik,trn[trn.length-1]);
     }
 
     public static Pair<Double, Integer> euklidesa(Integer[] tst, Integer[] trn){
@@ -25,8 +25,8 @@ public class Metryki {
         for(int i=0; i<(tst.length)-1; i++){
             wynik+=(Math.pow((tst[i]-trn[i]),2));
         }
-        Pair<Double, Integer> out = new Pair<>(Math.sqrt(wynik),trn[trn.length-1]);
-        return out;
+
+        return new Pair<>(Math.sqrt(wynik),trn[trn.length-1]);
     }
 
     public static Pair<Double, Integer> canberra(Integer[] tst, Integer[] trn){
@@ -34,8 +34,8 @@ public class Metryki {
         for(int i=0; i<(tst.length)-1; i++){
             wynik+=Math.abs((double)(tst[i]-trn[i])/(tst[i]+trn[i]));
         }
-        Pair<Double, Integer> out = new Pair<>(wynik,trn[trn.length-1]);
-        return out;
+
+        return new Pair<>(wynik,trn[trn.length-1]);
     }
 
     public static Pair<Double, Integer> czebyszewa(Integer[] tst, Integer[] trn){
@@ -44,8 +44,8 @@ public class Metryki {
             listaWynikow.add(Math.abs((tst[i]-trn[i])));
         }
         double wynik = Collections.max(listaWynikow);
-        Pair<Double, Integer> out = new Pair<>(wynik,trn[trn.length-1]);
-        return out;
+
+        return new Pair<>(wynik,trn[trn.length-1]);
     }
 
     public static Pair<Double, Integer> pearsona(Integer[] tst, Integer[] trn){
@@ -58,8 +58,37 @@ public class Metryki {
         sredniaX /= (tst.length)-1;
         sredniaY /= (tst.length)-1;
 
+        double podPierwX = 0.0;
+        for(int i=0; i<(tst.length)-1; i++){
+            podPierwX+=Math.pow((tst[i]-sredniaX),2);
+        }
+        podPierwX /= (tst.length)-1;
+        double mianownikX = Math.sqrt(podPierwX);
 
-        Pair<Double, Integer> out = new Pair<>(0.0,trn[trn.length-1]);
-        return out;
+
+        double podPierwY = 0.0;
+        for(int i=0; i<(tst.length)-1; i++){
+            podPierwX+=Math.pow((trn[i]-sredniaY),2);
+        }
+        podPierwY /= (tst.length)-1;
+        double mianownikY = Math.sqrt(podPierwY);
+
+        double r = 0.0;
+        for(int i=0; i<(tst.length)-1; i++){
+            double licznikX = (tst[i]-sredniaX);
+            double licznikY = (trn[i]-sredniaY);
+            double nawiasX = licznikX / mianownikX;
+            double nawiasY = licznikY / mianownikY;
+            r += nawiasX * nawiasY;
+        }
+        r /= (tst.length)-1;
+
+        double wynik = 1 - Math.abs(r);
+
+        return new Pair<>(wynik, trn[trn.length-1]);
+    }
+
+    public static String tm (String s){
+        return s+" executed";
     }
 }
