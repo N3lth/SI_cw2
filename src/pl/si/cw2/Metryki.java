@@ -87,8 +87,4 @@ public class Metryki {
 
         return new Pair<>(wynik, trn[trn.length-1]);
     }
-
-    public static String tm (String s){
-        return s+" executed";
-    }
 }
