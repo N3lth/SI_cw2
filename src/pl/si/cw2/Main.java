@@ -46,34 +46,7 @@ public class Main {
 
 
 
-        //      ALGORYTM 2
-
-        System.out.print("\n\n");
-        /*
-
-
-        //     SPRAWDZENIE CZY DOBRZE TWORZY MACIERZ   --   OK
-
-
-        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
-        for(int i=0; i<mn.length; i++){
-            for(int j=0; j<mn[i].length; j++){
-                System.out.println("ob"+(j+1)+"");
-                if(mn[i][j].length != 0){
-                    Arrays.stream(mn[i][j]).forEach(a -> System.out.print("a"+(a+1)+" "));
-                }
-                else System.out.print("    X");
-                System.out.println("\n\n");
-            }
-            System.out.println("-----------------------\n");
-        }
-
-        */
-
-
-
-
-
+        //      ALGORYTM EXHAUSTIVE
 
 
         List<Regula> regulyExhaustive = new ArrayList<>();
@@ -227,7 +200,25 @@ public class Main {
 
         //System.out.println(czyKombinacjaZawieraSieWWierszu(kombinacja, wiersz));
 
-*/
+
+
+        //     SPRAWDZENIE CZY DOBRZE TWORZY MACIERZ   --   OK
+
+
+        int[][][] mn = tworzMacierzNieodroznialnosci(sys);
+        for(int i=0; i<mn.length; i++){
+            for(int j=0; j<mn[i].length; j++){
+                System.out.println("ob"+(j+1)+"");
+                if(mn[i][j].length != 0){
+                    Arrays.stream(mn[i][j]).forEach(a -> System.out.print("a"+(a+1)+" "));
+                }
+                else System.out.print("    X");
+                System.out.println("\n\n");
+            }
+            System.out.println("-----------------------\n");
+        }
+
+        */
 
     }
 
