@@ -71,7 +71,58 @@ public class Main {
 
         //      KNN
 
-        macierzPredykcji(systemTst, systemTrn, "euklidesa", 2);
+
+
+            Scanner in = new Scanner(System.in);
+
+            System.out.println("Klasyfikacja KNN\n\nDostępne metryki:\n1. Manhattan\n2. Euklidesa\n3. Canberra\n4. Czebyszewa\n5. Pearsona\n");
+            System.out.print("Wybierz metryke: ");
+            int metryka = in.nextInt();
+
+            if(1 > metryka || metryka > 5) {
+                System.out.println("Wybór metryki spoza zakresu (1-5)!");
+                try {Thread.sleep(1000);}
+                catch (InterruptedException | IllegalMonitorStateException e){}
+                System.out.println("\n\n\n");
+                main(null);
+            }
+
+            int k;
+
+            switch (metryka) {
+                case 1:
+                    System.out.print("Podaj K: ");
+                    k = in.nextInt();
+                    System.out.println("\n\nKlasyfikacja " + k + "NN:\n");
+                    macierzPredykcji(systemTst, systemTrn, "manhattan", k);
+                    break;
+                case 2:
+                    System.out.print("Podaj K: ");
+                    k = in.nextInt();
+                    System.out.println("\n\nKlasyfikacja " + k + "NN:\n");
+                    macierzPredykcji(systemTst, systemTrn, "euklidesa", k);
+                    break;
+                case 3:
+                    System.out.print("Podaj K: ");
+                    k = in.nextInt();
+                    System.out.println("\n\nKlasyfikacja " + k + "NN:\n");
+                    macierzPredykcji(systemTst, systemTrn, "canberra", k);
+                    break;
+                case 4:
+                    System.out.print("Podaj K: ");
+                    k = in.nextInt();
+                    System.out.println("\n\nKlasyfikacja " + k + "NN:\n");
+                    macierzPredykcji(systemTst, systemTrn, "czebyszewa", k);
+                    break;
+                case 5:
+                    System.out.print("Podaj K: ");
+                    k = in.nextInt();
+                    System.out.println("\n\nKlasyfikacja " + k + "NN:\n");
+                    macierzPredykcji(systemTst, systemTrn, "pearsona", k);
+                    break;
+            }
+
+
 
 
 
@@ -258,7 +309,6 @@ public class Main {
         System.out.println();
         System.out.println("Accuracy TST: "+(double) liczbaObiektowPoprawnieSklasyfikowanychTST/liczbaObiektowChwyconychTST);
         System.out.println("Coverage TST: "+(double) liczbaObiektowChwyconychTST/iloscObiektowTST);
-
 
     }
 
@@ -464,5 +514,9 @@ public class Main {
             }
         }
         return resCol;
+    }
+
+    public static void clearScreen() {
+        for (int i = 0; i < 50; ++i) System.out.println();
     }
 }
