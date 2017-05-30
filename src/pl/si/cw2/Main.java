@@ -113,7 +113,7 @@ public class Main {
 
         System.out.println("\n\nReguly algorytmu Exhaustive:\n");
 
-        int nrReguly = 0;
+        int nrReguly = 1;
         for(Regula r : regulyExhaustive){
             System.out.print("R"+nrReguly+": ");
             System.out.println(r.toString());
