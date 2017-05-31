@@ -68,7 +68,7 @@ public class Metryki {
 
         double podPierwY = 0.0;
         for(int i=0; i<(tst.length)-1; i++){
-            podPierwX+=Math.pow((trn[i]-sredniaY),2);
+            podPierwY+=Math.pow((trn[i]-sredniaY),2);
         }
         podPierwY /= (tst.length)-1;
         double mianownikY = Math.sqrt(podPierwY);
